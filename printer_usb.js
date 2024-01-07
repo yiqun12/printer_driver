@@ -69,20 +69,8 @@ function printer_usb(hex1, hex2, fileName, queue) {
             reject(err);
             device.close();
           });
-
-        // The command for checking the status
-        const statusCommand = Buffer.from([0x1B, 0x76]); // ESC v
-        device.write(statusCommand, function (err) {
-          if (err) {
-            console.error("Error sending status command:", err);
-          } else {
-            // The response should be handled here
-            // You need to read from the device to get the status
-            // This might be tricky as it depends on how the escpos module and your printer handle responses
-          }
-        });
-
       });
+      
     });
   });
 

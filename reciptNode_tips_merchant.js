@@ -14,7 +14,7 @@ function reciptNode_tips_merchant(randomUuid, receipt_JSON,selectedTable,discoun
     const lineHeight = 20;
     const taxRate = 0.0825;
 
-    const horrizontal_max_right = 275;
+    const horrizontal_max_right = 255;
     
     // drawDashedLine will draw you a line (dotted or solid)
     function drawDashedLine(pattern, startx = 0, endx = horrizontal_max_right, height = y) {

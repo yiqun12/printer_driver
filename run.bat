@@ -7,12 +7,13 @@ echo Node.js has been installed.
 
 call npm install
 call npm install -g nodemon
+echo Stopping any Node.js application on port 3000...
+for /f "tokens=5" %%a in ('netstat -aon ^| find "LISTENING" ^| find ":3000"') do (
+    taskkill /F /PID %%a
+)
+echo Any existing Node.js application on port 3000 has been stopped.
 
 rem Start your node application
 cd %~dp0
 start "" nodemon index.js
-
-rem Start the shortcuts
-start "" "%~dp0/server/win-unpacked/EatifyLocalHost.exe"
-start "" "%~dp0/client/win-unpacked/EatifyLocalHost.exe"
-
+call npm start

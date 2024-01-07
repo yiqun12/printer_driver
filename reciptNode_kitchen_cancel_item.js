@@ -1,6 +1,6 @@
 const fs = require('fs')
 const { createCanvas, loadImage } = require('canvas')
-function reciptNode_kitchen_cancel_item(randomUuid, receipt_JSON, selectedTable) {
+function reciptNode_kitchen_cancel_item(randomUuid, receipt_JSON, selectedTable,currentDate) {
 
     // drawDashedLine will draw you a line (dotted or solid)
     function drawDashedLine(pattern, startx = 10, endx = 300, height = y) {
@@ -115,7 +115,7 @@ function reciptNode_kitchen_cancel_item(randomUuid, receipt_JSON, selectedTable)
         return numberString.charAt(numberString.length - 1);
     }
     // Get the current date and time
-    const currentDate = new Date();
+    //const currentDate = new Date();
 
     // Format the date and time as "mm/dd/yy hr:minute:seconds"
     const formattedDateTime =
