@@ -14,7 +14,6 @@
 const fs = require('fs')
 const { createCanvas, loadImage } = require('canvas')
 function reciptNode_kitchen(randomUuid, receipt_JSON, selectedTable,currentDate) {
-
     // drawDashedLine will draw you a line (dotted or solid)
     function drawDashedLine(pattern, startx = 20, endx = 400, height = y) {
         context.beginPath();
