@@ -43,7 +43,15 @@ printQueue.push = function (...args) {
     originalPush.apply(this, args);
     queueEmitter.emit('updated', this);
 };
+function formatPhoneNumber(phoneNumber) {
+    // Extract the first 3, next 3, and last 4 digits
+    var part1 = phoneNumber.slice(0, 3);
+    var part2 = phoneNumber.slice(3, 6);
+    var part3 = phoneNumber.slice(6);
 
+    // Combine the parts with dashes
+    return part1 + '-' + part2 + '-' + part3;
+}
 // Listener function to react to changes in printQueue
 queueEmitter.on('updated', (updatedQueue) => {
     //console.log('Queue updated:', updatedQueue);
@@ -77,15 +85,26 @@ app.post('/MerchantReceipt', (req, res) => {
     const data = req.body;
     console.log("MerchantReceipt")
     const randomUuid = uuidv4();
-    console.log(randomUuid);
+
+    let restaurant_name_CHI = req.body.storeNameCHI
+    let restaurant_name = req.body.storeName
+    let restaurant_address_1 = req.body.storeAddress
+    let restaurant_address_2 = req.body.storeCityAddress + ' ' + req.body.storeState + ' ' + req.body.storeZipCode
+    let restaurant_phone = req.body.storePhone
 
     //printer_usb(0x0FE6, 0x0FE6, "merchant.png")
     printQueue.push({
         vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_tips_merchant(
-            randomUuid, JSON.stringify(req.body.data), req.body.selectedTable,
+            randomUuid,
+            JSON.stringify(req.body.data), req.body.selectedTable,
             req.body.discount,
             req.body.service_fee,
             req.body.total,
+            restaurant_name_CHI,
+            restaurant_name,
+            restaurant_address_1,
+            restaurant_address_2,
+            formatPhoneNumber(restaurant_phone)
         )
     });
     res.send({ success: true, message: "Data received successfully" });
@@ -97,14 +116,11 @@ app.post('/CustomerReceipt', (req, res) => {
     // const updatedJsonString = JSON.stringify(req.body.data.map(obj => ({ ...obj, itemTotalPrice: parseFloat(obj.itemTotalPrice) })));
     // console.log(updatedJsonString)
     const randomUuid = uuidv4();
-    console.log(randomUuid);
-    reciptNode_tips_customer(
-        randomUuid,
-        JSON.stringify(req.body.data), req.body.selectedTable,
-        req.body.discount,
-        req.body.service_fee,
-        req.body.total,
-    )
+    let restaurant_name_CHI = req.body.storeNameCHI
+    let restaurant_name = req.body.storeName
+    let restaurant_address_1 = req.body.storeAddress
+    let restaurant_address_2 = req.body.storeCityAddress + ' ' + req.body.storeState + ' ' + req.body.storeZipCode
+    let restaurant_phone = req.body.storePhone
     printQueue.push({
         vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_tips_customer(
             randomUuid,
@@ -112,6 +128,11 @@ app.post('/CustomerReceipt', (req, res) => {
             req.body.discount,
             req.body.service_fee,
             req.body.total,
+            restaurant_name_CHI,
+            restaurant_name,
+            restaurant_address_1,
+            restaurant_address_2,
+            formatPhoneNumber(restaurant_phone)
         )
     });
     res.send({ success: true, message: "Data received successfully" });

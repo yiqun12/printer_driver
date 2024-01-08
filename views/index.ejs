@@ -11,7 +11,8 @@
     <div class="ml-5" id="google_translate_element" style=" top: 10px; right: 10px;"></div>
 
     <!-- Login with Google Button -->
-    <div class="ml-5" id="logoutBtnForm" style="font-family: 'Arial', sans-serif; font-weight: bold; margin-bottom: 20px;">
+    <div class="ml-5" id="logoutBtnForm"
+        style="font-family: 'Arial', sans-serif; font-weight: bold; margin-bottom: 20px;">
         Printer Driver: Do not close this page.
 
         <button id="logoutBtn" class="btn btn-danger mb-3" onclick="logoutFromGoogle()">
@@ -118,11 +119,22 @@
 
             if (checkboxElement.checked) {
                 selectedDocId = checkboxElement.id;
+                const storeId = checkboxElement.getAttribute('data-id');
+                const storeNameCHI = checkboxElement.getAttribute('data-storeNameCHI');
+                const storeName = checkboxElement.getAttribute('data-name');
+                
+                const storeCityAddress = checkboxElement.getAttribute('data-CityAddress');
+                const storeAddress = checkboxElement.getAttribute('data-address');
+                const storeState = checkboxElement.getAttribute('data-state');
+                const storeZipCode = checkboxElement.getAttribute('data-zipcode');
+                const storePhone = checkboxElement.getAttribute('data-phone');
+                //console.log("Selected Store:", { storeId, storeName, storeAddress, storeCityAddress,storeState, storeZipCode, storePhone, storeNameCHI });
                 let dateTime = new Date().toISOString();
                 let date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+                //console.log(date)
                 closeFirestoreListeners();
 
-                setupFirestoreListener(date, checkboxElement.id);
+                setupFirestoreListener(date, checkboxElement.id, storeId, storeName, storeAddress, storeState, storeZipCode, storePhone, storeNameCHI,storeCityAddress);
 
             } else {
                 selectedDocId = null;
@@ -134,18 +146,29 @@
         let unsubscribeFunctions = [];
 
 
-        function setupFirestoreListener(date, selectedDocId_) {
+        function setupFirestoreListener(date, selectedDocId_, storeId, storeName, storeAddress, storeState, storeZipCode, storePhone, storeNameCHI,storeCityAddress) {
             const db = firebase.firestore();
 
             // MerchantReceipt listener
             let merchantReceiptUnsubscribe = db.collection('stripe_customers').doc(uid_).collection("TitleLogoNameContent").doc(selectedDocId_).collection("MerchantReceipt").onSnapshot(snapshot => {
                 snapshot.docChanges().forEach(change => {
                     if (change.type === "added" && (change.doc.data().date > date)) {
+                        let jsonObject = change.doc.data();
+                        jsonObject.storeId = storeId;
+                        jsonObject.storeName = storeName;
+                        jsonObject.storeAddress = storeAddress;
+                        jsonObject.storeState = storeState;
+                        jsonObject.storeZipCode = storeZipCode;
+                        jsonObject.storePhone = storePhone;
+                        jsonObject.storeNameCHI = storeNameCHI;
+                        
+                        jsonObject.storeCityAddress=storeCityAddress
+                        console.log(jsonObject)
                         console.log("MerchantReceipt")
                         fetch('/MerchantReceipt', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(change.doc.data())
+                            body: JSON.stringify(jsonObject)
                         });
                     }
                 });
@@ -156,11 +179,21 @@
             let customerReceiptUnsubscribe = db.collection('stripe_customers').doc(uid_).collection("TitleLogoNameContent").doc(selectedDocId_).collection("CustomerReceipt").onSnapshot(snapshot => {
                 snapshot.docChanges().forEach(change => {
                     if (change.type === "added" && (change.doc.data().date > date)) {
-                        console.log("CustomerReceipt")
+                        let jsonObject = change.doc.data();
+                        jsonObject.storeId = storeId;
+                        jsonObject.storeName = storeName;
+                        jsonObject.storeAddress = storeAddress;
+                        jsonObject.storeState = storeState;
+                        jsonObject.storeZipCode = storeZipCode;
+                        jsonObject.storePhone = storePhone;
+                        jsonObject.storeNameCHI = storeNameCHI;
+                        jsonObject.storeCityAddress=storeCityAddress
+
+                        console.log(jsonObject)
                         fetch('/CustomerReceipt', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(change.doc.data())
+                            body: JSON.stringify(jsonObject)
                         });
                     }
                 });
@@ -170,6 +203,7 @@
                 snapshot.docChanges().forEach(change => {
                     if (change.type === "added" && (change.doc.data().date > date)) {
                         console.log("DeletedSendToKitchen")
+                        console.log(change.doc.data())
                         fetch('/DeletedSendToKitchen', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -184,6 +218,7 @@
                 snapshot.docChanges().forEach(change => {
                     if (change.type === "added" && (change.doc.data().date > date)) {
                         console.log("SendToKitchen")
+                        console.log(change.doc.data())
                         fetch('/SendToKitchen', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -197,6 +232,7 @@
                 snapshot.docChanges().forEach(change => {
                     if (change.type === "added" && (change.doc.data().date > date)) {
                         console.log("listOrder")
+                        console.log(change.doc.data())
                         fetch('/listOrder', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -253,7 +289,16 @@
                             storeDiv.innerHTML = `
                             <div class="d-flex align-items-center mb-2" style="display: flex; align-items: center;">
     <div class="form-check mr-3" style="margin-right: 15px;">
-        <input class="form-check-input" type="checkbox" id="${docId}" name="storeCheckbox" onchange="handleCheckboxChange(this)" ${checkedAttribute} style="width: 20px; height: 20px;">
+        <input class="form-check-input" type="checkbox" 
+        data-id="${docId}"
+    data-name="${storeData.Name}"
+    data-storeNameCHI="${storeData.storeNameCHI}"
+    data-CityAddress="${storeData.Address}"
+    data-address="${storeData.physical_address}"
+    data-state="${storeData.State}"
+    data-zipcode="${storeData.ZipCode}"
+    data-phone="${storeData.Phone}"
+        id="${docId}" name="storeCheckbox" onchange="handleCheckboxChange(this)" ${checkedAttribute} style="width: 20px; height: 20px;">
     </div>
     <h5 class="mb-0 notranslate" style="margin: 0 10px; color: #333;">${storeData.Name} ${storeData.storeNameCHI} (ID: ${docId})</h5>
 </div>
