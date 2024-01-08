@@ -109,6 +109,7 @@
         }
 
         function handleCheckboxChange(checkboxElement) {
+            console.log("hello")
             // Deselect other checkboxes
             const checkboxes = document.getElementsByName('storeCheckbox');
             checkboxes.forEach(cb => {
@@ -118,11 +119,17 @@
             });
 
             if (checkboxElement.checked) {
+                fetch('/init', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: checkboxElement.id })
+                });
+
                 selectedDocId = checkboxElement.id;
                 const storeId = checkboxElement.getAttribute('data-id');
                 const storeNameCHI = checkboxElement.getAttribute('data-storeNameCHI');
                 const storeName = checkboxElement.getAttribute('data-name');
-                
+
                 const storeCityAddress = checkboxElement.getAttribute('data-CityAddress');
                 const storeAddress = checkboxElement.getAttribute('data-address');
                 const storeState = checkboxElement.getAttribute('data-state');
@@ -134,7 +141,7 @@
                 //console.log(date)
                 closeFirestoreListeners();
 
-                setupFirestoreListener(date, checkboxElement.id, storeId, storeName, storeAddress, storeState, storeZipCode, storePhone, storeNameCHI,storeCityAddress);
+                setupFirestoreListener(date, checkboxElement.id, storeId, storeName, storeAddress, storeState, storeZipCode, storePhone, storeNameCHI, storeCityAddress);
 
             } else {
                 selectedDocId = null;
@@ -146,7 +153,7 @@
         let unsubscribeFunctions = [];
 
 
-        function setupFirestoreListener(date, selectedDocId_, storeId, storeName, storeAddress, storeState, storeZipCode, storePhone, storeNameCHI,storeCityAddress) {
+        function setupFirestoreListener(date, selectedDocId_, storeId, storeName, storeAddress, storeState, storeZipCode, storePhone, storeNameCHI, storeCityAddress) {
             const db = firebase.firestore();
 
             // MerchantReceipt listener
@@ -161,8 +168,8 @@
                         jsonObject.storeZipCode = storeZipCode;
                         jsonObject.storePhone = storePhone;
                         jsonObject.storeNameCHI = storeNameCHI;
-                        
-                        jsonObject.storeCityAddress=storeCityAddress
+
+                        jsonObject.storeCityAddress = storeCityAddress
                         console.log(jsonObject)
                         console.log("MerchantReceipt")
                         fetch('/MerchantReceipt', {
@@ -187,7 +194,7 @@
                         jsonObject.storeZipCode = storeZipCode;
                         jsonObject.storePhone = storePhone;
                         jsonObject.storeNameCHI = storeNameCHI;
-                        jsonObject.storeCityAddress=storeCityAddress
+                        jsonObject.storeCityAddress = storeCityAddress
 
                         console.log(jsonObject)
                         fetch('/CustomerReceipt', {
@@ -300,7 +307,11 @@
     data-phone="${storeData.Phone}"
         id="${docId}" name="storeCheckbox" onchange="handleCheckboxChange(this)" ${checkedAttribute} style="width: 20px; height: 20px;">
     </div>
-    <h5 class="mb-0 notranslate" style="margin: 0 10px; color: #333;">${storeData.Name} ${storeData.storeNameCHI} (ID: ${docId})</h5>
+    <h5 class="mb-0 notranslate" style="margin: 0 10px; color: #333;">
+    ${storeData.Name} ${storeData.storeNameCHI} (ID: ${docId})
+</h5>
+
+
 </div>
 
 <p class="ml-5" style="margin-bottom: 10px;">Here is the basic store information:</p>

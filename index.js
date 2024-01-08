@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const opn = require('opn');
 
 const app = express();
 const { reciptNode_tips_customer } = require('./reciptNode_tips_customer');
@@ -212,6 +213,19 @@ app.post('/OpenCashDraw', (req, res) => {
     console.log("OpenCashDraw:", data);
     res.send({ success: true, message: "Data received successfully" });
 });
+
+app.post('/init', (req, res) => {
+    const data = req.body;
+    console.log("init:", data.id);
+
+    opn(`https://eatify-22231.web.app/account#code?store=${data.id}`).then(() => {
+        res.send({ success: true, message: "Data received successfully and browser opened" });
+    }).catch(err => {
+        console.error(err);
+        res.status(500).send({ success: false, message: "Failed to open browser" });
+    });
+});
+
 
 app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');
