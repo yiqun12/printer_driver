@@ -1,4 +1,4 @@
-<h1 align="center" id="title">Eatifydash Printer Dashboard Application</h1>
+<h1 align="center" id="title">Eatifydash Printer Dashboard DeskTop Application</h1>
 
 <p id="description">This README document describes the Printer Driver Application a comprehensive system designed for managing printer tasks within Eatifydash restaurant environment. The application integrates with Firebase for authentication and Firestore for real-time database interactions. It provides features like Google authentication email/password login printing various types of receipts handling printer tasks and opening the cash drawer.</p>
 
