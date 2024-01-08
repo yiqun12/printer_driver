@@ -52,12 +52,12 @@ This project is licensed under the Apache License 2.0
 
 EatifyDash is a state-of-the-art POS system tailored for the food and beverage industry. Our platform leverages cutting-edge technology to streamline operational efficiency enhance customer experience and provide actionable business insights. We are actively seeking investments to expand our market reach enhance product features and scale our operations. We believe that with the right investment partnership we can significantly accelerate our growth and market presence.<p>Why Invest in EatifyDash?
 <br/>
-Expansive Market Opportunities: EatifyDash is strategically positioned to capitalize on the burgeoning market in San Francisco's Chinatown. This specific area boasts over 700 restaurants, presenting a uniquely concentrated opportunity for growth and expansion. Our focus on this niche yet expansive market sets the stage for significant business potential and promising investment returns..
+**Expansive Market Opportunities:** EatifyDash is strategically positioned to capitalize on the burgeoning market in San Francisco's Chinatown. This specific area boasts over 700 restaurants, presenting a uniquely concentrated opportunity for growth and expansion. Our focus on this niche yet expansive market sets the stage for significant business potential and promising investment returns..
 <br/>
- Innovative Solutions: EatifyDash stands out with unique features and selling points that set us apart in the marketplace. 
+ **Innovative Solutions:** EatifyDash stands out with unique features and selling points that set us apart in the marketplace. 
  <br/>
- Experienced Team: Our team consists of industry veterans with extensive experience and a proven track record in technology and the food and beverage industry. 
+ ** Experienced Team:** Our team consists of industry veterans with extensive experience and a proven track record in technology and the food and beverage industry. 
  <br/>
- Customer Validation: We have received positive feedback and strong interest from potential customers validating our solution's market fit. 
+ **Customer Validation:** We have received positive feedback and strong interest from potential customers validating our solution's market fit. 
  <br/>
  Investor Relations For more detailed financial information specific investment inquiries or to arrange a meeting with our executive team please contact our Investor Relations: Email: Admin@eatifydash.com</p>
