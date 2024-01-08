@@ -13,29 +13,35 @@
 // limitations under the License.
 
 const { app, BrowserWindow } = require('electron');
-// const path = require('path');
-// const childProcess = require('child_process');
 
 let mainWindow;
 
-app.on('ready', () => {
-  // Create a new Electron window
-  mainWindow = new BrowserWindow({ width: 800, height: 600 });
-  // mainWindow.loadFile('index.html'); // Load your Electron app interface
-  mainWindow.maximize()
+const gotTheLock = app.requestSingleInstanceLock();
 
-    // mainWindow.loadURL('https://eatify-22231.web.app/account#code?store=demo');
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+
+  app.on('ready', () => {
+    mainWindow = new BrowserWindow({ width: 800, height: 600 });
+    mainWindow.maximize();
     mainWindow.loadURL('http://localhost:3000');
 
-
-  // Handle app window closed
-  mainWindow.on('closed', () => {
-    app.quit();
+    mainWindow.on('closed', () => {
+      mainWindow = null;
+    });
   });
-});
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+      app.quit();
+    }
+  });
+}
