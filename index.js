@@ -33,10 +33,10 @@ const { printer_network } = require('./printer_network')
 const { printer_usb, printerEmitter } = require('./printer_usb')
 const { v4: uuidv4 } = require('uuid');
 
-const front_vendorID = 0x0FE6
-const front_productId = 0x811E
-const back_vendorID = 0x04B8
-const back_productId = 0x0202
+const back_vendorID = 0x0FE6
+const back_productId = 0x811E
+const front_vendorID = 0x04B8
+const front_productId = 0x0202
 
 
 

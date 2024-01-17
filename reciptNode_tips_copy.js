@@ -29,7 +29,7 @@ function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount,
     let subtotal = 0
     // let total = 0;
     let lines = 0;
-    const lineHeight = 20;
+    const lineHeight = 15;
     const taxRate = 0.0825;
 
     const horrizontal_max_right = 255;
