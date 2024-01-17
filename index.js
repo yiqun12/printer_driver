@@ -20,9 +20,9 @@ const path = require('path');
 const opn = require('opn');
 
 const app = express();
-const { reciptNode_tips_customer } = require('./reciptNode_tips_customer');
-const { reciptNode_tips_merchant } = require('./reciptNode_tips_merchant');
-const { reciptNode_tips_merchant_terminal } = require('./reciptNode_tips_merchant_terminal')
+// const { reciptNode_tips_customer } = require('./reciptNode_tips_customer');
+const { reciptNode_tips_copy } = require('./reciptNode_tips_copy');
+// const { reciptNode_tips_merchant_terminal } = require('./reciptNode_tips_merchant_terminal')
 const { reciptNode_print_order_list } = require('./reciptNode_print_order_list')
 
 const { reciptNode_kitchen } = require('./reciptNode_kitchen')
@@ -33,10 +33,11 @@ const { printer_network } = require('./printer_network')
 const { printer_usb, printerEmitter } = require('./printer_usb')
 const { v4: uuidv4 } = require('uuid');
 
-const back_vendorID = 0x0FE6
-const back_productId = 0x811E
-const front_vendorID = 0x04B8
-const front_productId = 0x0202
+const front_vendorID = 0x0FE6
+const front_productId = 0x811E
+const back_vendorID = 0x04B8
+const back_productId = 0x0202
+
 
 
 // Middleware to parse JSON requests
@@ -78,6 +79,7 @@ queueEmitter.on('updated', (updatedQueue) => {
         if (updatedQueue.length === 1) {
             //console.log(item.vendorId)
             //console.log(item.productId)
+
             printer_usb(item.vendorId, item.productId, item.fileName, updatedQueue);
         }
     });
@@ -111,7 +113,7 @@ app.post('/MerchantReceipt', (req, res) => {
 
     //printer_usb(0x0FE6, 0x0FE6, "merchant.png")
     printQueue.push({
-        vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_tips_merchant(
+        vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_tips_copy(
             randomUuid,
             JSON.stringify(req.body.data), req.body.selectedTable,
             req.body.discount,
@@ -121,7 +123,8 @@ app.post('/MerchantReceipt', (req, res) => {
             restaurant_name,
             restaurant_address_1,
             restaurant_address_2,
-            formatPhoneNumber(restaurant_phone)
+            formatPhoneNumber(restaurant_phone),
+            "Merchant Copy"
         )
     });
     res.send({ success: true, message: "Data received successfully" });
@@ -139,7 +142,7 @@ app.post('/CustomerReceipt', (req, res) => {
     let restaurant_address_2 = req.body.storeCityAddress + ' ' + req.body.storeState + ' ' + req.body.storeZipCode
     let restaurant_phone = req.body.storePhone
     printQueue.push({
-        vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_tips_customer(
+        vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_tips_copy(
             randomUuid,
             JSON.stringify(req.body.data), req.body.selectedTable,
             req.body.discount,
@@ -149,7 +152,8 @@ app.post('/CustomerReceipt', (req, res) => {
             restaurant_name,
             restaurant_address_1,
             restaurant_address_2,
-            formatPhoneNumber(restaurant_phone)
+            formatPhoneNumber(restaurant_phone),
+            "Customer Copy"
         )
     });
     res.send({ success: true, message: "Data received successfully" });
@@ -162,24 +166,21 @@ app.post('/SendToKitchen', (req, res) => {
     //console.log(randomUuid);
     // printer_network('192.168.1.204', "kitchen.png")
     const currentDate = new Date();
-
-    const picname = reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
+    const picname = reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable,currentDate)
     printQueue.push({
         vendorId: back_vendorID, productId: back_productId, fileName: picname
-    });//back desk
+    });//front desk
     const randomUuid2 = uuidv4();
-    const picname2 = reciptNode_kitchen(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
+    const picname2 = reciptNode_kitchen(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable,currentDate)
     printQueue.push({
-        vendorId: back_vendorID, productId: front_productId, fileName: picname2
+        vendorId: front_vendorID, productId: front_productId, fileName: picname2
     });//back desk
 
     const randomUuid3 = uuidv4();
-
-    const picname3 = reciptNode_kitchen(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
+    const picname3 = reciptNode_kitchen(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable,currentDate)
     printQueue.push({
-        vendorId: front_vendorID, productId: front_productId, fileName: picname3
-    });//front desk
-
+        vendorId: back_vendorID, productId: back_productId, fileName: picname3
+    });//back desk
     // printQueue.push({
     //     vendorId: 0x0FE6, productId: 0x811E, fileName: reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable,
     //     )
@@ -212,12 +213,12 @@ app.post('/DeletedSendToKitchen', (req, res) => {
     const randomUuid = uuidv4();
     const currentDate = new Date();
     console.log(currentDate)
-    const picname = reciptNode_kitchen_cancel_item(randomUuid, JSON.stringify(req.body.data),req.body.selectedTable, currentDate)
+    const picname = reciptNode_kitchen_cancel_item(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
     printQueue.push({
         vendorId: back_vendorID, productId: back_productId, fileName: picname
     });//back desk
     const randomUuid2 = uuidv4();
-    const picname2 = reciptNode_kitchen_cancel_item(randomUuid2, JSON.stringify(req.body.data),req.body.selectedTable, currentDate)
+    const picname2 = reciptNode_kitchen_cancel_item(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
     printQueue.push({
         vendorId: front_vendorID, productId: front_productId, fileName: picname2
     });//back desk

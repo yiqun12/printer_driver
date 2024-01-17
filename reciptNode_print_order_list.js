@@ -194,7 +194,7 @@ function formatWithLeadingZero(number) {
     const formattedDateTime = `${formatWithLeadingZero(currentDate.getMonth() + 1)}/` +
       `${formatWithLeadingZero(currentDate.getDate())}/` +
       `${formatWithLeadingZero(currentDate.getFullYear() % 100)}` +
-      ` ${formatWithLeadingZero(currentDate.getHours())}:${formatWithLeadingZero(currentDate.getMinutes())}:${formatWithLeadingZero(currentDate.getSeconds())}`;
+      ` ${formatWithLeadingZero(currentDate.getHours())}:${formatWithLeadingZero(currentDate.getMinutes())}`;
   
     context.textAlign = 'end'
     // context.fillText(`${meal_option}`, horrizontal_max_right, y);

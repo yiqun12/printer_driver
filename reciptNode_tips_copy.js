@@ -14,12 +14,14 @@
 const fs = require('fs')
 const { createCanvas, loadImage } = require('canvas')
 // const app = express();
-
-function reciptNode_tips_customer(randomUuid, receipt_JSON, selectedTable, discount, service_fee, total, restaurant_name_CHI,
+function toFixTwo(n){
+   return (Math.round(n*100)/100).toFixed(2)
+}
+function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount, service_fee, total, restaurant_name_CHI,
     restaurant_name,
     restaurant_address_1,
     restaurant_address_2,
-    restaurant_phone) {
+    restaurant_phone,receiptCopyMode) {
 
     /**generate new png picture receipt */
     const width = 300
@@ -73,10 +75,10 @@ function reciptNode_tips_customer(randomUuid, receipt_JSON, selectedTable, disco
     // section to add template text
     let meal_option = "DINE-IN"
     // let restaurant_name_CHI = "台山风味点心"
-    // let restaurant_name = "Taishan Specialty"
-    // let restaurant_address_1 = "1365 Stockton ST"
+    // let restaurant_name = "Taishan Taste Dim Sum"
+    // let restaurant_address_1 = "1343 Powell Street"
     // let restaurant_address_2 = "SAN FRANCISCO, CA 94133"
-    // let restaurant_phone = "415-398-2288"
+    // let restaurant_phone = "415-398-1888"
     lines += 5
 
     // adding dotted lines
@@ -183,7 +185,7 @@ function reciptNode_tips_customer(randomUuid, receipt_JSON, selectedTable, disco
     // draw a dotted line
     y += lineHeight * 0.5
     drawDashedLine([5, 15])
-    y += lineHeight * 2
+    y += lineHeight 
 
     // putting in the name and DINE-IN or TAKE-OUT option
     context.fillText(`${user.name}`, 0, y);
@@ -200,7 +202,7 @@ function reciptNode_tips_customer(randomUuid, receipt_JSON, selectedTable, disco
     const formattedDateTime = `${formatWithLeadingZero(currentDate.getMonth() + 1)}/` +
         `${formatWithLeadingZero(currentDate.getDate())}/` +
         `${formatWithLeadingZero(currentDate.getFullYear() % 100)}` +
-        ` ${formatWithLeadingZero(currentDate.getHours())}:${formatWithLeadingZero(currentDate.getMinutes())}:${formatWithLeadingZero(currentDate.getSeconds())}`;
+        ` ${formatWithLeadingZero(currentDate.getHours())}:${formatWithLeadingZero(currentDate.getMinutes())}`;
 
     context.textAlign = 'end'
     // context.fillText(`${meal_option}`, horrizontal_max_right, y);
@@ -222,7 +224,7 @@ function reciptNode_tips_customer(randomUuid, receipt_JSON, selectedTable, disco
         context.fillText(`${item.quantity} x ${name}`, 0, y);
         // context.fillText(`${item.name}`, 100, y);
         context.textAlign = "end"
-        context.fillText(`$${Math.round(item.item_Total * 100) / 100}`, horrizontal_max_right, y)
+        context.fillText(`$${toFixTwo(item.item_Total)}`, horrizontal_max_right, y)
         // context.fillText(`${item.name}:`, 20, y);
         context.textAlign = "left"
         // context.fillText(`${item.quantity}*$${item.subtotal} = $${item.item_Total}`, 20, y+lineHeight);
@@ -280,52 +282,54 @@ function reciptNode_tips_customer(randomUuid, receipt_JSON, selectedTable, disco
     // adding the subtotals, tax, and total
     context.fillText(`Subtotal:`, 0, y)
     context.textAlign = 'end'
-    context.fillText(`$${Math.round(subtotal * 100) / 100}`, horrizontal_max_right, y)
+    context.fillText(`$${toFixTwo(subtotal)}`, horrizontal_max_right, y)
     context.textAlign = 'left'
     y += lineHeight;
 
     context.fillText(`Tax:`, 0, y)
     context.textAlign = 'end'
-    context.fillText(`$${Math.round(subtotal * taxRate * 100) / 100}`, horrizontal_max_right, y)
+    context.fillText(`$${toFixTwo(subtotal * taxRate)}`, horrizontal_max_right, y)
     context.textAlign = 'left'
     y += lineHeight;
 
     if (discount != 0) {
         context.fillText(`Discount:`, 0, y)
         context.textAlign = 'end'
-        context.fillText(`$${Math.round(discount * 100) / 100}`, horrizontal_max_right, y)
+        context.fillText(`$${toFixTwo(discount)}`, horrizontal_max_right, y)
         context.textAlign = 'left'
         y += lineHeight;
     }
 
     if (service_fee != 0) {
-        context.fillText(`Service Fee:`, 0, y)
+        context.fillText(`Gratuity(${Math.round(service_fee/subtotal*100)}%):`, 0, y)
         context.textAlign = 'end'
-        context.fillText(`$${Math.round(service_fee * 100) / 100}`, horrizontal_max_right, y)
+        context.fillText(`$${toFixTwo(service_fee)}`, horrizontal_max_right, y)
         context.textAlign = 'left'
         y += lineHeight;
     }
 
     context.fillText(`Total:`, 0, y)
     context.textAlign = 'end'
-    context.fillText(`$${Math.round(total * 100) / 100}`, horrizontal_max_right, y)
+    context.fillText(`$${toFixTwo(total)}`, horrizontal_max_right, y)
     context.textAlign = 'left'
     context.font = '10pt Sans'
     y += lineHeight;
     context.font = "bold 10pt Sans";
 
     // tips section here
-    context.fillText(`Tips:`, 0, y)
-    context.textAlign = 'end'
-    context.fillText(`$________`, horrizontal_max_right, y)
-    context.textAlign = 'left'
-    y += lineHeight;
+    // context.fillText(`Tips:`, 0, y)
+    // context.textAlign = 'end'
+    // context.fillText(`$________`, horrizontal_max_right, y)
+    // context.textAlign = 'left'
+    // y += lineHeight;
+    // context.font = "bold 10pt Sans";
 
-    context.fillText(`Total:`, 0, y)
-    context.textAlign = 'end'
-    context.fillText(`$________`, horrizontal_max_right, y)
-    context.textAlign = 'left'
-    y += lineHeight;
+    // context.fillText(`Total:`, 0, y)
+    // context.textAlign = 'end'
+    // context.fillText(`$________`, horrizontal_max_right, y)
+    // context.textAlign = 'left'
+    // y += lineHeight;
+
     //additional line for spacing
     y += lineHeight
 
@@ -334,7 +338,7 @@ function reciptNode_tips_customer(randomUuid, receipt_JSON, selectedTable, disco
     // signature message
     context.font = "15pt Sans";
     context.textAlign = 'center'
-    context.fillText("Customer Copy", horrizontal_max_right / 2, y)
+    context.fillText(receiptCopyMode, horrizontal_max_right / 2, y)//merchant copy
     y += lineHeight * 1.5
 
     // more space for signature
@@ -347,6 +351,7 @@ function reciptNode_tips_customer(randomUuid, receipt_JSON, selectedTable, disco
     y += lineHeight
 
     context.font = "bold 10pt Sans";
+
     context.fillText("SIGNATURE", horrizontal_max_right / 2, y)
     context.textAlign = 'left'
     y += lineHeight * 1.5
@@ -363,21 +368,25 @@ function reciptNode_tips_customer(randomUuid, receipt_JSON, selectedTable, disco
 
     // tips section
     context.textAlign = 'center';
-    context.fillText(`Tips Suggestions`, horrizontal_max_right / 2, y)
-    context.fillText(`15%: $${Math.round(subtotal * .15 * 100) / 100}`, horrizontal_max_right / 2, y + lineHeight);
-    context.fillText(`18%: $${Math.round(subtotal * .18 * 100) / 100}`, horrizontal_max_right / 2, y + lineHeight * 2);
-    context.fillText(`20%: $${Math.round(subtotal * .20 * 100) / 100}`, horrizontal_max_right / 2, y + lineHeight * 3);
-    context.fillText(`POWERED BY EATIFYDASH`, horrizontal_max_right / 2, y + lineHeight * 4);
-    y += lineHeight * 4
+    context.fillText(`Add Additional Gratuity`, horrizontal_max_right / 2, y)
+    context.fillText(`⬜ 15%: $${toFixTwo(subtotal * .15 )} Total: $${toFixTwo(total + subtotal * .15) }`, horrizontal_max_right / 2, y + lineHeight);
+    context.fillText(`⬜ 18%: $${toFixTwo(subtotal * .18)} Total: $${toFixTwo(total + subtotal * .18) }`, horrizontal_max_right / 2, y + lineHeight * 2);
+    context.fillText(`⬜ 20%: $${toFixTwo(subtotal * .20)} Total: $${toFixTwo(total + subtotal * .20) }`, horrizontal_max_right / 2, y + lineHeight * 3);
+    context.fillText(`⬜ Custom: $_____ Total: $_____`, horrizontal_max_right / 2, y + lineHeight * 4);
+
+    context.fillText(`POWERED BY EATIFYDASH`, horrizontal_max_right / 2, y + lineHeight * 5);
+    y += lineHeight * 6
+
 
     const height = canvas.height
     const buffer = canvas.toBuffer('image/png')
+    //fs.writeFileSync('./merchant.png', buffer)
     fs.writeFileSync('./' + randomUuid + parseInt(height * 4.05).toString() + '.png', buffer)
-
     return randomUuid + parseInt(height * 4.05).toString() + '.png'
-    //picture generation ends
 }
 
+// reciptNode_tips_merchant(2321, `[{"id":"22b2e9fb-eac9-43da-b053-bc498307c951","name":"1/2 Salted Pork And Egg Claypot Rice","subtotal":"7.50","image":"https://img1.baidu.com/it/u=3553466282,3760543442&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666","quantity":2,"attributeSelected":{},"count":"1a365b9c-7bbd-47d9-844b-336b64cf1238","itemTotalPrice":"15.00","CHI":"咸猪肉鸡蛋煲仔饭 / 2"},{"id":"6931fd34-62e6-4fba-9403-a4d7c89cec97","name":"1/2 Mustard Beef Claypot Rice","subtotal":"7.50","image":"https://img2.baidu.com/it/u=2686239804,2732453889&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666","quantity":2,"attributeSelected":{},"count":"5f7c5203-c350-4191-8aa0-36037e1f41da","itemTotalPrice":"15.00","CHI":"榨菜牛肉煲仔饭 / 2"},{"id":"c2cb3c36-b9e3-45b2-8d16-58a6fb66ce27","name":"Braised Pig Tail Soup With Herbs / 2","subtotal":"6.00","image":"https://img0.baidu.com/it/u=1012952787,2134557708&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666","quantity":4,"attributeSelected":{},"count":"dfbaa825-e675-4730-b7fd-5fe4baba9122","itemTotalPrice":"24.00","CHI":"药材炖猪尾汤 / 2"}]`, "A2", 0, 0, 100)
+
 module.exports = {
-    reciptNode_tips_customer: reciptNode_tips_customer
+    reciptNode_tips_copy: reciptNode_tips_copy
 };
