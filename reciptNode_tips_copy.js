@@ -216,24 +216,32 @@ function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount,
     drawDashedLine([])
     y += lineHeight;
 
-    function extractInteger(str) {
-        const regex = /#@%(\d+)#@%/;
+    function extractAndRemoveInteger(str) {
+        const regex = /#@% (\d+)#@%/;
         const match = str.match(regex);
     
         if (match) {
-            // match[1] contains the captured integer part of the string
-            return parseInt(match[1], 10);
+            // Extracted integer
+            const extractedInt = parseInt(match[1], 10);
+    
+            // Remove the pattern from the string
+            const updatedString = str.replace(regex, '');
+    
+            return { extractedInt, updatedString };
         }
     
-        // If the string does not match the pattern, do nothing
-        return null;
+        // If the string does not match the pattern, return null for the integer and the original string
+        return { extractedInt: null, updatedString: str };
     }
+    
     product.forEach(item => {
 
         // changing the name so that it can only be 13 characters
         let name = shortenName(item.name)
-        if (extractInteger(item.name)){//split
-            context.fillText(`${Math.round(item.quantity/extractInteger(item.name)*100)/100} x ${name}`, 0, y);
+        const { extractedInt, updatedString } = extractAndRemoveInteger("Hello #@% 123#@% World!");
+
+        if (extractedInt !== null){//split
+            context.fillText(`${Math.round(item.quantity/extractInteger(item.name)*100)/100} x ${updatedString}`, 0, y);
         }else{
             context.fillText(`${item.quantity} x ${name}`, 0, y);
         } 
