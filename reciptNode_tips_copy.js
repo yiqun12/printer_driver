@@ -216,12 +216,27 @@ function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount,
     drawDashedLine([])
     y += lineHeight;
 
-
+    function extractInteger(str) {
+        const regex = /#@%(\d+)#@%/;
+        const match = str.match(regex);
+    
+        if (match) {
+            // match[1] contains the captured integer part of the string
+            return parseInt(match[1], 10);
+        }
+    
+        // If the string does not match the pattern, do nothing
+        return null;
+    }
     product.forEach(item => {
 
         // changing the name so that it can only be 13 characters
         let name = shortenName(item.name)
-        context.fillText(`${item.quantity} x ${name}`, 0, y);
+        if (extractInteger(item.name)){//split
+            context.fillText(`${Math.round(item.quantity/extractInteger(item.name)*100)/100} x ${name}`, 0, y);
+        }else{
+            context.fillText(`${item.quantity} x ${name}`, 0, y);
+        } 
         // context.fillText(`${item.name}`, 100, y);
         context.textAlign = "end"
         context.fillText(`$${toFixTwo(item.item_Total)}`, horrizontal_max_right, y)
