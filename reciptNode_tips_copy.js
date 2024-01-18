@@ -14,14 +14,14 @@
 const fs = require('fs')
 const { createCanvas, loadImage } = require('canvas')
 // const app = express();
-function toFixTwo(n){
-   return (Math.round(n*100)/100).toFixed(2)
+function toFixTwo(n) {
+    return (Math.round(n * 100) / 100).toFixed(2)
 }
 function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount, service_fee, total, restaurant_name_CHI,
     restaurant_name,
     restaurant_address_1,
     restaurant_address_2,
-    restaurant_phone,receiptCopyMode) {
+    restaurant_phone, receiptCopyMode) {
 
     /**generate new png picture receipt */
     const width = 300
@@ -112,7 +112,7 @@ function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount,
     // // deleting lines to cut down on space (saves money)
     // lines -= 3
 
-    // dotted lines 
+    // dotted lines
     lines += 4
 
     // for ripping
@@ -160,7 +160,7 @@ function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount,
         lines += 2;
         subtotal += item.item_Total;
     })
-    // lines += 1; 
+    // lines += 1;
     const canvas = createCanvas(width, lines * lineHeight)
     const context = canvas.getContext('2d')
 
@@ -185,7 +185,7 @@ function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount,
     // draw a dotted line
     y += lineHeight * 0.5
     drawDashedLine([5, 15])
-    y += lineHeight 
+    y += lineHeight
 
     // putting in the name and DINE-IN or TAKE-OUT option
     context.fillText(`${user.name}`, 0, y);
@@ -217,34 +217,34 @@ function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount,
     y += lineHeight;
 
     function extractAndRemoveInteger(str) {
-        const regex = /#@% (\d+)#@%/;
+        const regex = /#@%(\d+)#@%/;
         const match = str.match(regex);
-    
+
         if (match) {
             // Extracted integer
             const extractedInt = parseInt(match[1], 10);
-    
+
             // Remove the pattern from the string
             const updatedString = str.replace(regex, '');
-    
+
             return { extractedInt, updatedString };
         }
-    
+
         // If the string does not match the pattern, return null for the integer and the original string
         return { extractedInt: null, updatedString: str };
     }
-    
+
     product.forEach(item => {
 
         // changing the name so that it can only be 13 characters
         let name = shortenName(item.name)
-        const { extractedInt, updatedString } = extractAndRemoveInteger("Hello #@% 123#@% World!");
+        const { extractedInt, updatedString } = extractAndRemoveInteger(item.name);
 
-        if (extractedInt !== null){//split
-            context.fillText(`${Math.round(item.quantity/extractInteger(item.name)*100)/100} x ${updatedString}`, 0, y);
-        }else{
+        if (extractedInt !== null) {//split
+            context.fillText(`${Math.round(item.quantity / extractedInt * 100) / 100} x ${updatedString}`, 0, y);
+        } else {
             context.fillText(`${item.quantity} x ${name}`, 0, y);
-        } 
+        }
         // context.fillText(`${item.name}`, 100, y);
         context.textAlign = "end"
         context.fillText(`$${toFixTwo(item.item_Total)}`, horrizontal_max_right, y)
@@ -324,7 +324,7 @@ function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount,
     }
 
     if (service_fee != 0) {
-        context.fillText(`Gratuity(${Math.round(service_fee/subtotal*100)}%):`, 0, y)
+        context.fillText(`Gratuity(${Math.round(service_fee / subtotal * 100)}%):`, 0, y)
         context.textAlign = 'end'
         context.fillText(`$${toFixTwo(service_fee)}`, horrizontal_max_right, y)
         context.textAlign = 'left'
@@ -387,14 +387,14 @@ function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount,
     //     context.textAlign = 'center';
     // }
     // context.fillText(totalText, width / 2, y - 5);
-    // y += lineHeight; 
+    // y += lineHeight;
 
     // tips section
     context.textAlign = 'center';
     context.fillText(`Add Additional Gratuity`, horrizontal_max_right / 2, y)
-    context.fillText(`⬜ 15%: $${toFixTwo(subtotal * .15 )} Total: $${toFixTwo(total + subtotal * .15) }`, horrizontal_max_right / 2, y + lineHeight);
-    context.fillText(`⬜ 18%: $${toFixTwo(subtotal * .18)} Total: $${toFixTwo(total + subtotal * .18) }`, horrizontal_max_right / 2, y + lineHeight * 2);
-    context.fillText(`⬜ 20%: $${toFixTwo(subtotal * .20)} Total: $${toFixTwo(total + subtotal * .20) }`, horrizontal_max_right / 2, y + lineHeight * 3);
+    context.fillText(`⬜ 15%: $${toFixTwo(subtotal * .15)} Total: $${toFixTwo(total + subtotal * .15)}`, horrizontal_max_right / 2, y + lineHeight);
+    context.fillText(`⬜ 18%: $${toFixTwo(subtotal * .18)} Total: $${toFixTwo(total + subtotal * .18)}`, horrizontal_max_right / 2, y + lineHeight * 2);
+    context.fillText(`⬜ 20%: $${toFixTwo(subtotal * .20)} Total: $${toFixTwo(total + subtotal * .20)}`, horrizontal_max_right / 2, y + lineHeight * 3);
     context.fillText(`⬜ Custom: $_____ Total: $_____`, horrizontal_max_right / 2, y + lineHeight * 4);
 
     context.fillText(`POWERED BY EATIFYDASH`, horrizontal_max_right / 2, y + lineHeight * 5);
