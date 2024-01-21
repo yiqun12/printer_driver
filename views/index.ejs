@@ -73,7 +73,7 @@ limitations under the License. -->
         // function googleTranslateElementInit() {
         //     new google.translate.TranslateElement({ pageLanguage: 'en' }, 'google_translate_element');
         // }
-        
+
         // function changeGoogleTranslateDefaultLanguage() {
         //     var selectField = document.querySelector(".goog-te-combo");
         //     if (selectField) {
@@ -222,6 +222,32 @@ limitations under the License. -->
                 });
             });
             unsubscribeFunctions.push(customerReceiptUnsubscribe);
+
+            let bankReceiptUnsubscribe = db.collection('stripe_customers').doc(uid_).collection("TitleLogoNameContent").doc(selectedDocId_).collection("bankReceipt").onSnapshot(snapshot => {
+                snapshot.docChanges().forEach(change => {
+                    console.log(change.doc.data())
+                    if (change.type === "added" && (change.doc.data().date > date)) {
+                        let jsonObject = change.doc.data();
+                        jsonObject.storeId = storeId;
+                        jsonObject.storeName = storeName;
+                        jsonObject.storeAddress = storeAddress;
+                        jsonObject.storeState = storeState;
+                        jsonObject.storeZipCode = storeZipCode;
+                        jsonObject.storePhone = storePhone;
+                        jsonObject.storeNameCHI = storeNameCHI;
+                        jsonObject.storeCityAddress = storeCityAddress
+
+                        console.log(jsonObject)
+                        fetch('/bankReceipt', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(jsonObject)
+                        });
+                    }
+                });
+            });
+            unsubscribeFunctions.push(bankReceiptUnsubscribe);
+
             let DeletedSendToKitchen = db.collection('stripe_customers').doc(uid_).collection("TitleLogoNameContent").doc(selectedDocId_).collection("DeletedSendToKitchen").onSnapshot(snapshot => {
                 snapshot.docChanges().forEach(change => {
                     if (change.type === "added" && (change.doc.data().date > date)) {

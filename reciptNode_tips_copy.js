@@ -183,8 +183,8 @@ function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount,
     context.textAlign = 'left';
 
     // draw a dotted line
-    y += lineHeight * 0.5
-    drawDashedLine([5, 15])
+    // y += lineHeight * 0.5
+    // drawDashedLine([5, 15])
     y += lineHeight
 
     // putting in the name and DINE-IN or TAKE-OUT option
@@ -370,7 +370,7 @@ function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount,
     context.font = "10pt Sans";
     // signature
     context.fillText(`x`, 28, y)
-    drawDashedLine([5, 15], 55)
+    drawDashedLine([], 55)
     y += lineHeight
 
     context.font = "bold 10pt Sans";

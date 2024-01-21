@@ -26,6 +26,7 @@ const { reciptNode_tips_copy } = require('./reciptNode_tips_copy');
 const { reciptNode_print_order_list } = require('./reciptNode_print_order_list')
 
 const { reciptNode_kitchen } = require('./reciptNode_kitchen')
+const { bankReceipt } = require('./bankReceipt')
 const { reciptNode_kitchen_cancel_item } = require('./reciptNode_kitchen_cancel_item')
 
 const { printer_cashdraw } = require('./printer_cashdraw')
@@ -110,23 +111,25 @@ app.post('/MerchantReceipt', (req, res) => {
     let restaurant_address_1 = req.body.storeAddress
     let restaurant_address_2 = req.body.storeCityAddress + ' ' + req.body.storeState + ' ' + req.body.storeZipCode
     let restaurant_phone = req.body.storePhone
+    if (req.body.data && req.body.data.length !== 0) {//empty
 
-    //printer_usb(0x0FE6, 0x0FE6, "merchant.png")
-    printQueue.push({
-        vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_tips_copy(
-            randomUuid,
-            JSON.stringify(req.body.data), req.body.selectedTable,
-            req.body.discount,
-            req.body.service_fee,
-            req.body.total,
-            restaurant_name_CHI,
-            restaurant_name,
-            restaurant_address_1,
-            restaurant_address_2,
-            formatPhoneNumber(restaurant_phone),
-            "Merchant Copy"
-        )
-    });
+        //printer_usb(0x0FE6, 0x0FE6, "merchant.png")
+        printQueue.push({
+            vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_tips_copy(
+                randomUuid,
+                JSON.stringify(req.body.data), req.body.selectedTable,
+                req.body.discount,
+                req.body.service_fee,
+                req.body.total,
+                restaurant_name_CHI,
+                restaurant_name,
+                restaurant_address_1,
+                restaurant_address_2,
+                formatPhoneNumber(restaurant_phone),
+                "Merchant Copy"
+            )
+        });
+    }
     res.send({ success: true, message: "Data received successfully" });
 });
 
@@ -141,21 +144,23 @@ app.post('/CustomerReceipt', (req, res) => {
     let restaurant_address_1 = req.body.storeAddress
     let restaurant_address_2 = req.body.storeCityAddress + ' ' + req.body.storeState + ' ' + req.body.storeZipCode
     let restaurant_phone = req.body.storePhone
-    printQueue.push({
-        vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_tips_copy(
-            randomUuid,
-            JSON.stringify(req.body.data), req.body.selectedTable,
-            req.body.discount,
-            req.body.service_fee,
-            req.body.total,
-            restaurant_name_CHI,
-            restaurant_name,
-            restaurant_address_1,
-            restaurant_address_2,
-            formatPhoneNumber(restaurant_phone),
-            "Customer Copy"
-        )
-    });
+    if (req.body.data && req.body.data.length !== 0) {//empty
+        printQueue.push({
+            vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_tips_copy(
+                randomUuid,
+                JSON.stringify(req.body.data), req.body.selectedTable,
+                req.body.discount,
+                req.body.service_fee,
+                req.body.total,
+                restaurant_name_CHI,
+                restaurant_name,
+                restaurant_address_1,
+                restaurant_address_2,
+                formatPhoneNumber(restaurant_phone),
+                "Customer Copy"
+            )
+        });
+    }
     res.send({ success: true, message: "Data received successfully" });
 });
 
@@ -166,26 +171,29 @@ app.post('/SendToKitchen', (req, res) => {
     //console.log(randomUuid);
     // printer_network('192.168.1.204', "kitchen.png")
     const currentDate = new Date();
-    const picname = reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable,currentDate)
-    printQueue.push({
-        vendorId: back_vendorID, productId: back_productId, fileName: picname
-    });//front desk
-    const randomUuid2 = uuidv4();
-    const picname2 = reciptNode_kitchen(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable,currentDate)
-    printQueue.push({
-        vendorId: front_vendorID, productId: front_productId, fileName: picname2
-    });//back desk
+    if (req.body.data && req.body.data.length !== 0) {//empty
 
-    const randomUuid3 = uuidv4();
-    const picname3 = reciptNode_kitchen(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable,currentDate)
-    printQueue.push({
-        vendorId: back_vendorID, productId: back_productId, fileName: picname3
-    });//back desk
-    // printQueue.push({
-    //     vendorId: 0x0FE6, productId: 0x811E, fileName: reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable,
-    //     )
-    // });//back desk
-    //console.log("SendToKitchen:", data);
+        const picname = reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
+        printQueue.push({
+            vendorId: back_vendorID, productId: back_productId, fileName: picname
+        });//front desk
+        const randomUuid2 = uuidv4();
+        const picname2 = reciptNode_kitchen(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
+        printQueue.push({
+            vendorId: front_vendorID, productId: front_productId, fileName: picname2
+        });//back desk
+
+        const randomUuid3 = uuidv4();
+        const picname3 = reciptNode_kitchen(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
+        printQueue.push({
+            vendorId: back_vendorID, productId: back_productId, fileName: picname3
+        });//back desk
+        // printQueue.push({
+        //     vendorId: 0x0FE6, productId: 0x811E, fileName: reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable,
+        //     )
+        // });//back desk
+        //console.log("SendToKitchen:", data);
+    }
     res.send({ success: true, message: "Data received successfully" });
 });
 app.post('/listOrder', (req, res) => {
@@ -195,9 +203,14 @@ app.post('/listOrder', (req, res) => {
     console.log(data)
     //console.log(randomUuid);
     // printer_network('192.168.1.204', "kitchen.png")
-    printQueue.push({
-        vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_print_order_list(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable)
-    });//front desk
+    if (req.body.data && req.body.data.length !== 0) {//empty
+
+        printQueue.push({
+            vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_print_order_list(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable)
+        });
+
+    }
+    //front desk
     // printQueue.push({
     //     vendorId: 0x0FE6, productId: 0x811E, fileName: reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable,
     //     )
@@ -213,17 +226,47 @@ app.post('/DeletedSendToKitchen', (req, res) => {
     const randomUuid = uuidv4();
     const currentDate = new Date();
     console.log(currentDate)
-    const picname = reciptNode_kitchen_cancel_item(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
-    printQueue.push({
-        vendorId: back_vendorID, productId: back_productId, fileName: picname
-    });//back desk
-    const randomUuid2 = uuidv4();
-    const picname2 = reciptNode_kitchen_cancel_item(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
-    printQueue.push({
-        vendorId: front_vendorID, productId: front_productId, fileName: picname2
-    });//back desk
+    if (req.body.data && req.body.data.length !== 0) {//empty
+
+        const picname = reciptNode_kitchen_cancel_item(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
+        printQueue.push({
+            vendorId: back_vendorID, productId: back_productId, fileName: picname
+        });//back desk
+        const randomUuid2 = uuidv4();
+        const picname2 = reciptNode_kitchen_cancel_item(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
+        printQueue.push({
+            vendorId: front_vendorID, productId: front_productId, fileName: picname2
+        });//back desk
+    }
     res.send({ success: true, message: "Data received successfully" });
 });
+
+app.post('/bankReceipt', (req, res) => {
+    const data = req.body;
+    console.log("bankReceipt")
+    //console.log(req.body)
+    const randomUuid = uuidv4();
+
+    let restaurant_name_CHI = req.body.storeNameCHI
+    let restaurant_name = req.body.storeName
+    let restaurant_address_1 = req.body.storeAddress
+    let restaurant_address_2 = req.body.storeCityAddress + ' ' + req.body.storeState + ' ' + req.body.storeZipCode
+    let restaurant_phone = req.body.storePhone
+
+    //printer_usb(0x0FE6, 0x0FE6, "merchant.png")
+    printQueue.push({
+        vendorId: front_vendorID, productId: front_productId, fileName: bankReceipt(
+            randomUuid,
+            req.body, req.body.metadata.selectedTable,
+            restaurant_name_CHI,
+            restaurant_name,
+            restaurant_address_1,
+            restaurant_address_2,
+            formatPhoneNumber(restaurant_phone))
+    });
+    res.send({ success: true, message: "Data received successfully" });
+});
+
 
 app.post('/OpenCashDraw', (req, res) => {
     const data = req.body;
