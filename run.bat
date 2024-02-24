@@ -23,4 +23,3 @@ rem Start your node application
 cd %~dp0
 start "" nodemon index.js
 
-call npm start
