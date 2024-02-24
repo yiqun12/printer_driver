@@ -25,7 +25,7 @@ git clone https://github.com/yiqun12/printer_driver.git
 
 <p>3. Execution Details</p>
 
-<p>4. Eatifydash_run.vbs: This script runs the run.bat file without opening a command prompt window allowing the application to run in the background. run.bat: This script ensures that any Node.js application running on port 3000 is stopped before starting the Eatify Dashboard application. It uses nodemon for automatic restarting of the application when file changes in the directory are detected. After running Eatifydash_install.bat the Eatify Dashboard should start automatically.</p>
+<p>4. Eatifydash_run.vbs: This script runs the run.bat file without opening a command prompt window allowing the application to run in the background. run.bat: This script ensures that any Node.js application running on port 3001 is stopped before starting the Eatify Dashboard application. It uses nodemon for automatic restarting of the application when file changes in the directory are detected. After running Eatifydash_install.bat the Eatify Dashboard should start automatically.</p>
 
 <h2>🍰 Contribution Guidelines:</h2>
 

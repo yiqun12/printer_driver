@@ -11,7 +11,7 @@ function createWindow() {
   });
 
   // URL you want to open
-  mainWindow.loadURL('http://localhost:3000/');
+  mainWindow.loadURL('http://localhost:3001/');
   mainWindow.maximize();
 }
 

@@ -1,0 +1,396 @@
+<!-- Copyright 2024 Eatifydash
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License. -->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printer Driver</title>
+</head>
+
+<body>
+    <div class="ml-5" id="google_translate_element" style=" top: 10px; right: 10px;"></div>
+
+    <!-- Login with Google Button -->
+    <div class="ml-5" id="logoutBtnForm"
+        style="font-family: 'Arial', sans-serif; font-weight: bold; margin-bottom: 20px;">
+        Printer Driver: Do not close this page.
+
+        <button id="logoutBtn" class="btn btn-danger mb-3" onclick="logoutFromGoogle()">
+            Logout
+        </button>
+    </div>
+
+    <div class="container">
+
+
+
+        <!-- Email and Password Sign-in Form -->
+        <div id="emailPasswordForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" placeholder="Enter email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" placeholder="Enter password" required>
+            </div>
+            <button class="btn btn-success" onclick="loginWithEmailPassword()">Login with Email & Password</button>
+            <hr />
+            <button id="loginBtn" class="btn btn-primary mb-3" onclick="loginWithGoogle()">Login with Google</button>
+
+        </div>
+
+    </div>
+    <div id="usersList">
+        <!-- Data from Firestore will be populated here -->
+    </div>
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-firestore.js"></script>
+    <script type="text/javascript"
+        src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script>
+        // function googleTranslateElementInit() {
+        //     new google.translate.TranslateElement({ pageLanguage: 'en' }, 'google_translate_element');
+        // }
+
+        // function changeGoogleTranslateDefaultLanguage() {
+        //     var selectField = document.querySelector(".goog-te-combo");
+        //     if (selectField) {
+        //         selectField.value = 'zh-CN'; // Set to Simplified Chinese
+        //         selectField.dispatchEvent(new Event('change'));
+        //     }
+        // }
+
+        // window.addEventListener('load', function () {
+        //     setTimeout(changeGoogleTranslateDefaultLanguage, 1000); // Adjust timing as necessary
+        // });
+        const firebaseConfig = {
+            apiKey: "AIzaSyCw8WmZfhBIuYJVw34gTE6LlEfOE0e1Dqo",
+            authDomain: "eatify-22231.firebaseapp.com",
+            databaseURL: "https://eatify-22231-default-rtdb.firebaseio.com",
+            projectId: "eatify-22231",
+            storageBucket: "eatify-22231.appspot.com",
+            messagingSenderId: "579212375301",
+            appId: "1:579212375301:web:c29702497965d6e376f36c",
+            measurementId: "G-Y7WG36CDV3"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider)
+                .then(result => {
+                }).catch(error => {
+                    console.error(error.message);
+                });
+        }
+        function loginWithEmailPassword() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .catch(error => {
+                    console.error(error.message);
+                    alert("Error signing in: " + error.message);
+                });
+        }
+        function logoutFromGoogle() {
+            firebase.auth().signOut().then(() => {
+                // Log out successful. Refresh the page or hide user data
+                window.location.reload();
+            }).catch((error) => {
+                console.error(error.message);
+            });
+        }
+
+        function handleCheckboxChange(checkboxElement) {
+            // Deselect other checkboxes
+            const checkboxes = document.getElementsByName('storeCheckbox');
+            checkboxes.forEach(cb => {
+                if (cb !== checkboxElement) {
+                    cb.checked = false;
+                }
+            });
+
+            if (checkboxElement.checked) {
+                fetch('/init', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: checkboxElement.id })
+                });
+
+                selectedDocId = checkboxElement.id;
+                const storeId = checkboxElement.getAttribute('data-id');
+                const storeNameCHI = checkboxElement.getAttribute('data-storeNameCHI');
+                const storeName = checkboxElement.getAttribute('data-name');
+
+                const storeCityAddress = checkboxElement.getAttribute('data-CityAddress');
+                const storeAddress = checkboxElement.getAttribute('data-address');
+                const storeState = checkboxElement.getAttribute('data-state');
+                const storeZipCode = checkboxElement.getAttribute('data-zipcode');
+                const storePhone = checkboxElement.getAttribute('data-phone');
+                //console.log("Selected Store:", { storeId, storeName, storeAddress, storeCityAddress,storeState, storeZipCode, storePhone, storeNameCHI });
+                let dateTime = new Date().toISOString();
+                let date = dateTime.slice(0, 10) + '-' + dateTime.slice(11, 13) + '-' + dateTime.slice(14, 16) + '-' + dateTime.slice(17, 19) + '-' + dateTime.slice(20, 22);
+                //console.log(date)
+                closeFirestoreListeners();
+
+                setupFirestoreListener(date, checkboxElement.id, storeId, storeName, storeAddress, storeState, storeZipCode, storePhone, storeNameCHI, storeCityAddress);
+
+            } else {
+                selectedDocId = null;
+            }
+
+            console.log("Selected Document ID:", selectedDocId);
+        }
+        let uid_ = ""
+        let unsubscribeFunctions = [];
+
+
+        function setupFirestoreListener(date, selectedDocId_, storeId, storeName, storeAddress, storeState, storeZipCode, storePhone, storeNameCHI, storeCityAddress) {
+            const db = firebase.firestore();
+
+            // MerchantReceipt listener
+            let merchantReceiptUnsubscribe = db.collection('stripe_customers').doc(uid_).collection("TitleLogoNameContent").doc(selectedDocId_).collection("MerchantReceipt").onSnapshot(snapshot => {
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === "added" && (change.doc.data().date > date)) {
+                        let jsonObject = change.doc.data();
+                        jsonObject.storeId = storeId;
+                        jsonObject.storeName = storeName;
+                        jsonObject.storeAddress = storeAddress;
+                        jsonObject.storeState = storeState;
+                        jsonObject.storeZipCode = storeZipCode;
+                        jsonObject.storePhone = storePhone;
+                        jsonObject.storeNameCHI = storeNameCHI;
+
+                        jsonObject.storeCityAddress = storeCityAddress
+                        console.log(jsonObject)
+                        console.log("MerchantReceipt")
+                        fetch('/MerchantReceipt', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(jsonObject)
+                        });
+                    }
+                });
+            });
+            unsubscribeFunctions.push(merchantReceiptUnsubscribe);
+
+            // CustomerReceipt listener
+            let customerReceiptUnsubscribe = db.collection('stripe_customers').doc(uid_).collection("TitleLogoNameContent").doc(selectedDocId_).collection("CustomerReceipt").onSnapshot(snapshot => {
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === "added" && (change.doc.data().date > date)) {
+                        let jsonObject = change.doc.data();
+                        jsonObject.storeId = storeId;
+                        jsonObject.storeName = storeName;
+                        jsonObject.storeAddress = storeAddress;
+                        jsonObject.storeState = storeState;
+                        jsonObject.storeZipCode = storeZipCode;
+                        jsonObject.storePhone = storePhone;
+                        jsonObject.storeNameCHI = storeNameCHI;
+                        jsonObject.storeCityAddress = storeCityAddress
+
+                        console.log(jsonObject)
+                        fetch('/CustomerReceipt', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(jsonObject)
+                        });
+                    }
+                });
+            });
+            unsubscribeFunctions.push(customerReceiptUnsubscribe);
+
+            let bankReceiptUnsubscribe = db.collection('stripe_customers').doc(uid_).collection("TitleLogoNameContent").doc(selectedDocId_).collection("bankReceipt").onSnapshot(snapshot => {
+                snapshot.docChanges().forEach(change => {
+                    console.log(change.doc.data())
+                    if (change.type === "added" && (change.doc.data().date > date)) {
+                        let jsonObject = change.doc.data();
+                        jsonObject.storeId = storeId;
+                        jsonObject.storeName = storeName;
+                        jsonObject.storeAddress = storeAddress;
+                        jsonObject.storeState = storeState;
+                        jsonObject.storeZipCode = storeZipCode;
+                        jsonObject.storePhone = storePhone;
+                        jsonObject.storeNameCHI = storeNameCHI;
+                        jsonObject.storeCityAddress = storeCityAddress
+
+                        console.log(jsonObject)
+                        fetch('/bankReceipt', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(jsonObject)
+                        });
+                    }
+                });
+            });
+            unsubscribeFunctions.push(bankReceiptUnsubscribe);
+
+            let DeletedSendToKitchen = db.collection('stripe_customers').doc(uid_).collection("TitleLogoNameContent").doc(selectedDocId_).collection("DeletedSendToKitchen").onSnapshot(snapshot => {
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === "added" && (change.doc.data().date > date)) {
+                        console.log("DeletedSendToKitchen")
+                        console.log(change.doc.data())
+                        fetch('/DeletedSendToKitchen', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(change.doc.data())
+                        });
+                    }
+                });
+            });
+            unsubscribeFunctions.push(DeletedSendToKitchen);
+            // SendToKitchen listener
+            let sendToKitchenUnsubscribe = db.collection('stripe_customers').doc(uid_).collection("TitleLogoNameContent").doc(selectedDocId_).collection("SendToKitchen").onSnapshot(snapshot => {
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === "added" && (change.doc.data().date > date)) {
+                        console.log("SendToKitchen")
+                        console.log(change.doc.data())
+                        fetch('/SendToKitchen', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(change.doc.data())
+                        });
+                    }
+                });
+            });
+            unsubscribeFunctions.push(sendToKitchenUnsubscribe);
+            let listOrderUnsubscribe = db.collection('stripe_customers').doc(uid_).collection("TitleLogoNameContent").doc(selectedDocId_).collection("listOrder").onSnapshot(snapshot => {
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === "added" && (change.doc.data().date > date)) {
+                        console.log("listOrder")
+                        console.log(change.doc.data())
+                        fetch('/listOrder', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(change.doc.data())
+                        });
+                    }
+                });
+            });
+            unsubscribeFunctions.push(sendToKitchenUnsubscribe);
+
+            // OpenCashDraw listener
+            let openCashDrawUnsubscribe = db.collection('stripe_customers').doc(uid_).collection("TitleLogoNameContent").doc(selectedDocId_).collection("OpenCashDraw").onSnapshot(snapshot => {
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === "added" && (change.doc.data().date > date)) {
+                        console.log("OpenCashDraw")
+                        fetch('/OpenCashDraw', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(change.doc.data())
+                        });
+                    }
+                });
+            });
+            unsubscribeFunctions.push(openCashDrawUnsubscribe);
+        }
+
+        function closeFirestoreListeners() {
+            unsubscribeFunctions.forEach(unsub => unsub());
+            unsubscribeFunctions = []; // Clear the array after unsubscribing
+        }
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // User is signed in. Show the logout button and hide the login button.
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('logoutBtnForm').style.display = 'block';
+                document.getElementById('emailPasswordForm').style.display = 'none';
+
+                const uid = user.uid;
+                console.log("User UID:", uid);
+                uid_ = uid;
+                const usersListDiv = document.getElementById('usersList');
+
+                db.collection("stripe_customers").doc(user.uid).collection("TitleLogoNameContent").get()
+                    .then((querySnapshot) => {
+                        let isFirstCheckbox = true;
+
+                        querySnapshot.forEach((doc) => {
+                            const storeData = doc.data();
+                            const docId = doc.id;
+
+                            const storeDiv = document.createElement('div');
+                            const checkedAttribute = isFirstCheckbox ? 'checked' : '';
+
+                            storeDiv.innerHTML = `
+                            <div class="d-flex align-items-center mb-2" style="display: flex; align-items: center;">
+    <div class="form-check mr-3" style="margin-right: 15px;">
+        <input class="form-check-input" type="checkbox" 
+        data-id="${docId}"
+    data-name="${storeData.Name}"
+    data-storeNameCHI="${storeData.storeNameCHI}"
+    data-CityAddress="${storeData.Address}"
+    data-address="${storeData.physical_address}"
+    data-state="${storeData.State}"
+    data-zipcode="${storeData.ZipCode}"
+    data-phone="${storeData.Phone}"
+        id="${docId}" name="storeCheckbox" onchange="handleCheckboxChange(this)" ${checkedAttribute} style="width: 20px; height: 20px;">
+    </div>
+    <h5 class="mb-0 notranslate" style="margin: 0 10px; color: #333;">
+    ${storeData.Name} ${storeData.storeNameCHI} (ID: ${docId})
+</h5>
+
+
+</div>
+
+<p class="ml-5" style="margin-bottom: 10px;">Here is the basic store information:</p>
+<p class="ml-5" style="margin-bottom: 10px;">Address: <span class='notranslate'>${storeData.physical_address}</span></p>
+<p class="ml-5 notranslate" style="margin-bottom: 10px;">${storeData.Address}</p>
+<p class="ml-5 notranslate" style="margin-bottom: 10px;">${storeData.State}</p>
+<p class="ml-5 notranslate" style="margin-bottom: 10px;">${storeData.ZipCode}</p>
+<p class="ml-5" style="margin-bottom: 10px;">Tel: <span class='notranslate'>${storeData.Phone}</span></p>
+                    `;
+
+                            usersListDiv.appendChild(storeDiv);
+
+                            // If it's the first checkbox, call handleCheckboxChange
+                            if (isFirstCheckbox) {
+                                const firstCheckbox = document.getElementById(docId);
+                                handleCheckboxChange(firstCheckbox);
+                                isFirstCheckbox = false;
+                            }
+                        });
+                    })
+                    .catch((error) => {
+                        console.error("Error reading from Firestore: ", error);
+                    });
+
+            } else {
+                // No user is signed in. Show the login forms/buttons and hide the logout button.
+                document.getElementById('loginBtn').style.display = 'block';
+                document.getElementById('logoutBtnForm').style.display = 'none';
+                document.getElementById('emailPasswordForm').style.display = 'block';
+
+                console.log("No user is signed in.");
+            }
+        });
+
+
+
+    </script>
+</body>
+
+</html>

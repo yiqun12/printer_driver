@@ -288,6 +288,10 @@ app.post('/init', (req, res) => {
 });
 
 
-app.listen(3000, () => {
-    console.log('Server is running on http://localhost:3000');
+app.listen(3001, () => {
+    console.log('Server is running on http://localhost:3001');
+    opn(`https://eatify-22231.web.app/account`).then(() => {
+    }).catch(err => {
+        console.error(err);
+    });
 });

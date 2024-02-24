@@ -183,8 +183,8 @@ function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount,
     context.textAlign = 'left';
 
     // draw a dotted line
-    // y += lineHeight * 0.5
-    // drawDashedLine([5, 15])
+    y += lineHeight * 0.5
+    drawDashedLine([5, 15])
     y += lineHeight
 
     // putting in the name and DINE-IN or TAKE-OUT option
@@ -324,7 +324,7 @@ function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount,
     }
 
     if (service_fee != 0) {
-        context.fillText(`Gratuity(${Math.round(service_fee / subtotal * 100)}%):`, 0, y)
+        context.fillText(`Tips(${Math.round(service_fee / subtotal * 100)}%):`, 0, y)
         context.textAlign = 'end'
         context.fillText(`$${toFixTwo(service_fee)}`, horrizontal_max_right, y)
         context.textAlign = 'left'
@@ -370,7 +370,7 @@ function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount,
     context.font = "10pt Sans";
     // signature
     context.fillText(`x`, 28, y)
-    drawDashedLine([], 55)
+    drawDashedLine([5, 15], 55)
     y += lineHeight
 
     context.font = "bold 10pt Sans";
@@ -391,11 +391,11 @@ function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount,
 
     // tips section
     context.textAlign = 'center';
-    context.fillText(`Add Additional Gratuity`, horrizontal_max_right / 2, y)
+    context.fillText(`Add Additional Tips`, horrizontal_max_right / 2, y)
     context.fillText(`⬜ 15%: $${toFixTwo(subtotal * .15)} Total: $${toFixTwo(total + subtotal * .15)}`, horrizontal_max_right / 2, y + lineHeight);
     context.fillText(`⬜ 18%: $${toFixTwo(subtotal * .18)} Total: $${toFixTwo(total + subtotal * .18)}`, horrizontal_max_right / 2, y + lineHeight * 2);
     context.fillText(`⬜ 20%: $${toFixTwo(subtotal * .20)} Total: $${toFixTwo(total + subtotal * .20)}`, horrizontal_max_right / 2, y + lineHeight * 3);
-    context.fillText(`⬜ Custom: $_____ Total: $_____`, horrizontal_max_right / 2, y + lineHeight * 4);
+    context.fillText(`⬜ Custom: $________ Total: $________`, horrizontal_max_right / 2, y + lineHeight * 4);
 
     context.fillText(`POWERED BY EATIFYDASH`, horrizontal_max_right / 2, y + lineHeight * 5);
     y += lineHeight * 6
