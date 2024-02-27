@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Wi-Fi QR Code Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+</head>
+
+<body>
+    <div id="qrcode"></div>
+
+    <script>
+        function generateWiFiQRCode(ssid, password, encryptionType = "WPA") {
+            // Format the Wi-Fi network details for QR code
+            const wifiConfig = `WIFI:T:${encryptionType};S:${ssid};P:${password};;`;
+
+            // Create QR code generator instance
+            const qr = qrcode(0, 'L');
+            qr.addData(wifiConfig);
+            qr.make();
+
+            // Append QR code to the div
+            document.getElementById('qrcode').innerHTML = qr.createImgTag();
+        }
+
+        // Example: Generate QR code for Wi-Fi details
+        generateWiFiQRCode('Taishan-Dimsum-Guest', 'taishan1234');
+
+    </script>
+</body>
+
+</html>
