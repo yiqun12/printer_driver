@@ -18,6 +18,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const opn = require('opn');
+const open = require('open');
+const { exec } = require('child_process');
 
 const app = express();
 // const { reciptNode_tips_customer } = require('./reciptNode_tips_customer');
@@ -290,8 +292,21 @@ app.post('/init', (req, res) => {
 
 app.listen(3001, () => {
     console.log('Server is running on http://localhost:3001');
-    opn(`https://eatify-22231.web.app/account`).then(() => {
-    }).catch(err => {
-        console.error(err);
+
+    open('https://eatify-22231.web.app/account', {
+        app: {
+            name: open.apps.chrome,
+            arguments: [
+                '--no-sandbox',
+                '--kiosk',
+                '--force-device-scale-factor=1.3' // Adjusts zoom level to 150%
+            ]
+        }
+    })
+    .then(() => {
+        console.log('Browser opened in kiosk mode');
+    })
+    .catch(err => {
+        console.error('Failed to open browser in kiosk mode:', err);
     });
 });
