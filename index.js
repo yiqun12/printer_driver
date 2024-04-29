@@ -278,7 +278,7 @@ app.listen(3001, () => {
 
     open('https://eatify-22231.web.app/account', {
         app: {
-            name: open.apps.chrome,
+            name: open.apps.edge,
             arguments: [
                 '--no-sandbox',
                 '--kiosk',
@@ -292,9 +292,9 @@ app.listen(3001, () => {
         .catch(err => {
             console.error('Failed to open browser in kiosk mode:', err);
         });
-    open('https://eatify-22231.web.app/account', {
+    open('https://eatify-22231.web.app/account#code?store=bubbleshop', {
         app: {
-            name: open.apps.edge,
+            name: open.apps.chrome,
             arguments: [
                 '--no-sandbox',
                 '--kiosk',
