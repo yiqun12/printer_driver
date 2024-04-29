@@ -32,7 +32,7 @@ function reciptNode_tips_copy(randomUuid, receipt_JSON, selectedTable, discount,
     const lineHeight = 15;
     const taxRate = 0.0825;
 
-    const horrizontal_max_right = 255;
+    const horrizontal_max_right = 285;
 
     // drawDashedLine will draw you a line (dotted or solid)
     function drawDashedLine(pattern, startx = 0, endx = horrizontal_max_right, height = y) {

@@ -32,15 +32,17 @@ const { bankReceipt } = require('./bankReceipt')
 const { reciptNode_kitchen_cancel_item } = require('./reciptNode_kitchen_cancel_item')
 
 const { printer_cashdraw } = require('./printer_cashdraw')
-const { printer_network } = require('./printer_network')
+//const { printer_network } = require('./printer_network')
 const { printer_usb, printerEmitter } = require('./printer_usb')
+
 const { v4: uuidv4 } = require('uuid');
 
 const back_vendorID = 0x0FE6
 const back_productId = 0x811E
-const front_vendorID = 0x04B8
-const front_productId = 0x0202
-
+const front_vendorID = 0x0FE6
+const front_productId = 0x811E
+const back_networkIp = '192.168.1.240'
+const front_networkIp = false
 
 
 // Middleware to parse JSON requests
@@ -77,13 +79,12 @@ function formatPhoneNumber(phoneNumber) {
 queueEmitter.on('updated', (updatedQueue) => {
     //console.log('Queue updated:', updatedQueue);
     updatedQueue.forEach(item => {
-        // Pass the queue itself to the printer_usb function
         //console.log(updatedQueue.length)
         if (updatedQueue.length === 1) {
             //console.log(item.vendorId)
             //console.log(item.productId)
 
-            printer_usb(item.vendorId, item.productId, item.fileName, updatedQueue);
+            printer_usb(item.vendorId, item.productId, item.fileName, updatedQueue, item?.networkIp);
         }
     });
     // Perform any additional actions needed when the queue updates
@@ -91,12 +92,11 @@ queueEmitter.on('updated', (updatedQueue) => {
 printerEmitter.on('deleted', (fileName, queue) => {
     //console.log(`Item with filename ${fileName} was deleted from the queue.`);
     console.log(queue)
-    // Pass the queue itself to the printer_usb function
     console.log(queue.length)
     if (queue.length !== 0) {
         //console.log(item.vendorId)
         //console.log(item.productId)
-        printer_usb(queue[0].vendorId, queue[0].productId, queue[0].fileName, queue);
+        printer_usb(queue[0].vendorId, queue[0].productId, queue[0].fileName, queue, queue[0]?.networkIp);
     }
 
     // Perform additional actions if necessary
@@ -115,7 +115,6 @@ app.post('/MerchantReceipt', (req, res) => {
     let restaurant_phone = req.body.storePhone
     if (req.body.data && req.body.data.length !== 0) {//empty
 
-        //printer_usb(0x0FE6, 0x0FE6, "merchant.png")
         printQueue.push({
             vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_tips_copy(
                 randomUuid,
@@ -129,7 +128,7 @@ app.post('/MerchantReceipt', (req, res) => {
                 restaurant_address_2,
                 formatPhoneNumber(restaurant_phone),
                 "Merchant Copy"
-            )
+            ), networkIp: front_networkIp
         });
     }
     res.send({ success: true, message: "Data received successfully" });
@@ -160,7 +159,7 @@ app.post('/CustomerReceipt', (req, res) => {
                 restaurant_address_2,
                 formatPhoneNumber(restaurant_phone),
                 "Customer Copy"
-            )
+            ), networkIp: front_networkIp
         });
     }
     res.send({ success: true, message: "Data received successfully" });
@@ -177,24 +176,20 @@ app.post('/SendToKitchen', (req, res) => {
 
         const picname = reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
         printQueue.push({
-            vendorId: back_vendorID, productId: back_productId, fileName: picname
+            vendorId: back_vendorID, productId: back_productId, fileName: picname, networkIp: back_networkIp
         });//front desk
         const randomUuid2 = uuidv4();
         const picname2 = reciptNode_kitchen(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
         printQueue.push({
-            vendorId: front_vendorID, productId: front_productId, fileName: picname2
+            vendorId: front_vendorID, productId: front_productId, fileName: picname2, networkIp: front_networkIp
         });//back desk
-
-        const randomUuid3 = uuidv4();
-        const picname3 = reciptNode_kitchen(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
-        printQueue.push({
-            vendorId: back_vendorID, productId: back_productId, fileName: picname3
-        });//back desk
+        //enable this if you need a extra print in the backend
+        // const randomUuid3 = uuidv4();
+        // const picname3 = reciptNode_kitchen(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
         // printQueue.push({
-        //     vendorId: 0x0FE6, productId: 0x811E, fileName: reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable,
-        //     )
+        //     vendorId: back_vendorID, productId: back_productId, fileName: picname3,networkIp:back_networkIp
         // });//back desk
-        //console.log("SendToKitchen:", data);
+
     }
     res.send({ success: true, message: "Data received successfully" });
 });
@@ -208,7 +203,8 @@ app.post('/listOrder', (req, res) => {
     if (req.body.data && req.body.data.length !== 0) {//empty
 
         printQueue.push({
-            vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_print_order_list(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable)
+            vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_print_order_list(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable),
+            networkIp: front_networkIp
         });
 
     }
@@ -232,12 +228,12 @@ app.post('/DeletedSendToKitchen', (req, res) => {
 
         const picname = reciptNode_kitchen_cancel_item(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
         printQueue.push({
-            vendorId: back_vendorID, productId: back_productId, fileName: picname
+            vendorId: back_vendorID, productId: back_productId, fileName: picname, networkIp: back_networkIp
         });//back desk
         const randomUuid2 = uuidv4();
         const picname2 = reciptNode_kitchen_cancel_item(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
         printQueue.push({
-            vendorId: front_vendorID, productId: front_productId, fileName: picname2
+            vendorId: front_vendorID, productId: front_productId, fileName: picname2, networkIp: front_networkIp
         });//back desk
     }
     res.send({ success: true, message: "Data received successfully" });
@@ -255,7 +251,6 @@ app.post('/bankReceipt', (req, res) => {
     let restaurant_address_2 = req.body.storeCityAddress + ' ' + req.body.storeState + ' ' + req.body.storeZipCode
     let restaurant_phone = req.body.storePhone
 
-    //printer_usb(0x0FE6, 0x0FE6, "merchant.png")
     printQueue.push({
         vendorId: front_vendorID, productId: front_productId, fileName: bankReceipt(
             randomUuid,
@@ -264,7 +259,7 @@ app.post('/bankReceipt', (req, res) => {
             restaurant_name,
             restaurant_address_1,
             restaurant_address_2,
-            formatPhoneNumber(restaurant_phone))
+            formatPhoneNumber(restaurant_phone)), networkIp: front_networkIp
     });
     res.send({ success: true, message: "Data received successfully" });
 });
@@ -272,21 +267,9 @@ app.post('/bankReceipt', (req, res) => {
 
 app.post('/OpenCashDraw', (req, res) => {
     const data = req.body;
-    printer_cashdraw(front_vendorID, front_productId)
+    printer_cashdraw(front_vendorID, front_productId, front_networkIp)
     console.log("OpenCashDraw:", data);
     res.send({ success: true, message: "Data received successfully" });
-});
-
-app.post('/init', (req, res) => {
-    const data = req.body;
-    console.log("init:", data.id);
-
-    opn(`https://eatify-22231.web.app/account#code?store=${data.id}`).then(() => {
-        res.send({ success: true, message: "Data received successfully and browser opened" });
-    }).catch(err => {
-        console.error(err);
-        res.status(500).send({ success: false, message: "Failed to open browser" });
-    });
 });
 
 
@@ -299,14 +282,30 @@ app.listen(3001, () => {
             arguments: [
                 '--no-sandbox',
                 '--kiosk',
-                '--force-device-scale-factor=1.3' // Adjusts zoom level to 150%
+                '--force-device-scale-factor=1.0' // Adjusts zoom level to 150%
             ]
         }
     })
-    .then(() => {
-        console.log('Browser opened in kiosk mode');
+        .then(() => {
+            console.log('Browser opened in kiosk mode');
+        })
+        .catch(err => {
+            console.error('Failed to open browser in kiosk mode:', err);
+        });
+    open('https://eatify-22231.web.app/account', {
+        app: {
+            name: open.apps.edge,
+            arguments: [
+                '--no-sandbox',
+                '--kiosk',
+                '--force-device-scale-factor=1.0' // Adjusts zoom level to 150%
+            ]
+        }
     })
-    .catch(err => {
-        console.error('Failed to open browser in kiosk mode:', err);
-    });
+        .then(() => {
+            console.log('Browser opened in kiosk mode with Microsoft Edge');
+        })
+        .catch(err => {
+            console.error('Failed to open Microsoft Edge in kiosk mode:', err);
+        });
 });
