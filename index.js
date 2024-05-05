@@ -39,8 +39,8 @@ const { v4: uuidv4 } = require('uuid');
 
 const back_vendorID = 0x0FE6
 const back_productId = 0x811E
-const front_vendorID = 0x04B8
-const front_productId = 0x0E20
+const front_vendorID = 0x0FE6
+const front_productId = 0x811E
 const back_networkIp = '192.168.1.240'
 const front_networkIp = false
 const kiosk = false
