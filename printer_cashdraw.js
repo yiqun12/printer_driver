@@ -26,7 +26,7 @@ escpos.Network = require('escpos-network');
 
 
 function printer_cashdraw(hex1,hex2,networkIp) {
-
+let device
 //const device  = new escpos.Network(networkIp);
 if (networkIp) {
   device = new escpos.Network(networkIp);

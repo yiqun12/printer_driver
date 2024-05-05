@@ -129,7 +129,7 @@ function reciptNode_kitchen_cancel_item(randomUuid, receipt_JSON, selectedTable,
 
     // Format the date and time as "mm/dd/yy hr:minute:seconds"
     const formattedDateTime =
-        `#${formatWithLeadingZero(currentDate.getHours())}${formatWithLeadingZero(currentDate.getMinutes())}`;
+        `#${formatWithLeadingZero(currentDate.getHours())}:${formatWithLeadingZero(currentDate.getMinutes())}`;
 
     context.textAlign = 'end'
     y += lineHeight;

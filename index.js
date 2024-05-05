@@ -39,10 +39,11 @@ const { v4: uuidv4 } = require('uuid');
 
 const back_vendorID = 0x0FE6
 const back_productId = 0x811E
-const front_vendorID = 0x0FE6
-const front_productId = 0x811E
+const front_vendorID = 0x04B8
+const front_productId = 0x0E20
 const back_networkIp = '192.168.1.240'
 const front_networkIp = false
+const kiosk = false
 
 
 // Middleware to parse JSON requests
@@ -275,23 +276,26 @@ app.post('/OpenCashDraw', (req, res) => {
 
 app.listen(3001, () => {
     console.log('Server is running on http://localhost:3001');
-
-    open('https://eatify-22231.web.app/account', {
-        app: {
-            name: open.apps.edge,
-            arguments: [
-                '--no-sandbox',
-                '--kiosk',
-                '--force-device-scale-factor=1.0' // Adjusts zoom level to 150%
-            ]
-        }
-    })
-        .then(() => {
-            console.log('Browser opened in kiosk mode');
+    if (kiosk) {
+        open('https://eatify-22231.web.app/account', {
+            app: {
+                name: open.apps.edge,
+                arguments: [
+                    '--no-sandbox',
+                    '--kiosk',
+                    '--force-device-scale-factor=1.0' // Adjusts zoom level to 150%
+                ]
+            }
         })
-        .catch(err => {
-            console.error('Failed to open browser in kiosk mode:', err);
-        });
+            .then(() => {
+                console.log('Browser opened in kiosk mode');
+            })
+            .catch(err => {
+                console.error('Failed to open browser in kiosk mode:', err);
+            });
+    }
+
+
     open('https://eatify-22231.web.app/account#code?store=bubbleshop', {
         app: {
             name: open.apps.chrome,
