@@ -36,6 +36,8 @@ const { printer_cashdraw } = require('./printer_cashdraw')
 const { printer_usb, printerEmitter } = require('./printer_usb')
 
 const { v4: uuidv4 } = require('uuid');
+var Ptouch = require('node-ptouch');
+var usb = require('usb');
 
 const back_vendorID = 0x0FE6
 const back_productId = 0x811E
@@ -174,11 +176,18 @@ app.post('/SendToKitchen', (req, res) => {
     // printer_network('192.168.1.204', "kitchen.png")
     const currentDate = new Date();
     if (req.body.data && req.body.data.length !== 0) {//empty
-
+        for (let item of req.body.data) {
+            for (let i = 0; i < item.quantity; i++) {
+                printLabel(item.name)
+            }
+        }
         const picname = reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
+
         printQueue.push({
             vendorId: back_vendorID, productId: back_productId, fileName: picname, networkIp: back_networkIp
         });//front desk
+
+
         const randomUuid2 = uuidv4();
         const picname2 = reciptNode_kitchen(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
         printQueue.push({
@@ -313,3 +322,71 @@ app.listen(3001, () => {
             console.error('Failed to open Microsoft Edge in kiosk mode:', err);
         });
 });
+
+
+
+
+// Function to print a label
+function printLabel(labelText) {
+    var ptouch = new Ptouch(1, { copies: 1 });
+    ptouch.insertData('myObjectName', labelText);
+    var data = ptouch.generate();
+    console.log(String(data));
+
+    var printer = usb.findByIds(0x04f9, 0x209D);
+
+    if (!printer) {
+        console.log('Printer not found');
+        return;
+    }
+
+    printer.open();
+
+    var outputEndpoint = null;
+    var interfaceIndex = 0;
+    var interfaceClaimed = false;
+
+    try {
+        for (var iface of printer.interfaces) {
+            iface.claim();
+            interfaceClaimed = true;
+            for (var endpoint of iface.endpoints) {
+                if (endpoint.direction === 'out') {
+                    outputEndpoint = endpoint;
+                    break;
+                }
+            }
+            if (outputEndpoint) {
+                interfaceIndex = iface.interfaceNumber; // store the index for release
+                break; // Break out if endpoint found
+            }
+            iface.release(true); // Release if no endpoint found in this interface
+            interfaceClaimed = false;
+        }
+
+        if (outputEndpoint) {
+            outputEndpoint.transfer(data, function (err) {
+                if (err) {
+                    console.log('Error sending data:', err);
+                } else {
+                    console.log('Data sent');
+                }
+                // Printer connection remains open for further operations
+            });
+        } else {
+            console.log('No valid output endpoint found');
+            if (interfaceClaimed) {
+                printer.interfaces[interfaceIndex].release(true); // Release interface, but keep printer open
+            }
+        }
+    } catch (error) {
+        console.error('An error occurred:', error);
+        if (interfaceClaimed) {
+            printer.interfaces[interfaceIndex].release(true); // Release interface, but keep printer open
+        }
+    }
+}
+
+// Example usage:
+//printLabel('EATIFYDASH.COM');
+//printLabel('EATIFYDASH.COM2');
