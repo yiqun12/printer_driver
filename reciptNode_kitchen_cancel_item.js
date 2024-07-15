@@ -14,8 +14,38 @@
 
 const fs = require('fs')
 const { createCanvas, loadImage } = require('canvas')
-function reciptNode_kitchen_cancel_item(randomUuid, receipt_JSON, selectedTable,currentDate) {
+function reciptNode_kitchen_cancel_item(randomUuid, receipt_JSON, selectedTable, currentDate, BilanguageMode) {
     console.log(currentDate)
+    function calculateTotalLines(font, text, maxWidth) {
+        // Create a canvas to measure text width
+        const canvas = createCanvas(400, 200);
+        const context = canvas.getContext('2d');
+
+        context.font = '15pt Sans';
+
+        let chars = text.split(''); // Split the text into characters
+        let currentLine = '';
+        let lines = 0;
+
+        for (let char of chars) {
+            let testLine = currentLine + char;
+            let testWidth = context.measureText(testLine).width;
+
+            if (testWidth > maxWidth && currentLine.length > 0) {
+                lines++;
+                currentLine = char;
+            } else {
+                currentLine = testLine;
+            }
+        }
+
+        // Account for the last line
+        if (currentLine.length > 0) {
+            lines++;
+        }
+
+        return lines;
+    }
 
     // drawDashedLine will draw you a line (dotted or solid)
     function drawDashedLine(pattern, startx = 10, endx = 300, height = y) {
@@ -92,11 +122,39 @@ function reciptNode_kitchen_cancel_item(randomUuid, receipt_JSON, selectedTable,
     //const user = {name:change.doc.data().charges.data[0].billing_details.name}
     product.forEach(item => {
         // Check if item.attributeSelected exists and is not null, and it's not an empty object or an empty array
-        if (item.item_attributes && (typeof item.item_attributes === 'object') && !Array.isArray(item.item_attributes) && Object.keys(item.item_attributes).length > 0) {
-            lines += 1.5;
+        let x = ""
+        let name = BilanguageMode ? item.CHI : item.name
+
+        for (let key in item.item_attributes) {
+            const value = item.item_attributes[key];
+            // console.log(value)
+            // Check if the value is an array
+            if (Array.isArray(value)) {
+                value.forEach(item => {
+                    // console.log(item)
+                    x += item + " ";
+                });
+            }
+            // Check if the value is an object (but not an array)
+            else if (typeof value === 'object' && value !== null) {
+                for (let subkey in value) {
+                    // console.log(value[subkey]);
+                    x += value[subkey] + " ";
+                }
+            }
+            else {
+                // console.log(value);
+                x += value + " ";
+            }
+        }
+        let text = name + " " + x
+        //let text = x
+        if (calculateTotalLines('15pt Sans', text, 300) != 1) {
+            lines += 1 + 0.5 * (calculateTotalLines('15pt Sans', text, 300));
         } else {
             lines += 1;
         }
+
         total += item.item_Total;
     });
 
@@ -147,58 +205,71 @@ function reciptNode_kitchen_cancel_item(randomUuid, receipt_JSON, selectedTable,
 
     product.forEach(item => {
         // changing the name so that it can only be 20 characters
-        let name = shortenName(item.CHI)
+        let name = BilanguageMode ? item.CHI : item.name
 
-        context.fillText(`${name} x ${item.quantity}`, 10, y);
-        y += 0.5 * lineHeight;
-
-        // drawing dashed line for cancel
-        y -= 0.75 * lineHeight
-        drawDashedLine([]);
-        y += 0.75 * lineHeight
 
         // Check if there are attributes
-        if (item.item_attributes && (typeof item.item_attributes === 'object') && !Array.isArray(item.item_attributes) && Object.keys(item.item_attributes).length > 0) {
-            // change fonts to smaller font
-            context.font = '15pt Sans'
+        // change fonts to smaller font
+        context.font = '15pt Sans'
 
-            // attributes string
-            let x = ""
+        // attributes string
+        let x = ""
 
-            for (let key in item.item_attributes) {
-                const value = item.item_attributes[key];
+        for (let key in item.item_attributes) {
+            const value = item.item_attributes[key];
 
-                // Check if the value is an array
-                if (Array.isArray(value)) {
-                    value.forEach(item => {
-                        x += item + " ";
-                    });
-                }
-                // Check if the value is an object (but not an array)
-                else if (typeof value === 'object' && value !== null) {
-                    for (let subkey in value) {
-                        x += value[subkey] + " ";
-                    }
-                }
-                else {
-                    x += value + " ";
+            // Check if the value is an array
+            if (Array.isArray(value)) {
+                value.forEach(item => {
+                    x += item + " ";
+                });
+            }
+            // Check if the value is an object (but not an array)
+            else if (typeof value === 'object' && value !== null) {
+                for (let subkey in value) {
+                    x += value[subkey] + " ";
                 }
             }
-
-            console.log(x)
-            context.fillText(`${x}`, 45, y);
-            y += 1 * lineHeight;
-
-            // drawing a dash line for cancel
-            y -= 1.15 * lineHeight;
-            drawDashedLine([]);
-            y += 1.15 * lineHeight;
-
-            context.font = '20pt Sans'
-        } else {
-            // No attributes, add a line of text
-            y += 0.5 * lineHeight;
+            else {
+                x += value + " ";
+            }
         }
+
+        //Adjust the loop to concatenate characters until the line width exceeds the limit.
+        let attributesChar = item.quantity + " X " + name + " " + x
+        let chars = attributesChar.split(''); // Split the text into characters
+        let currentLine = '';
+        let lines = [];
+        for (let char of chars) {
+            let testLine = currentLine + char;
+            let testWidth = context.measureText(testLine).width;
+
+            if (testWidth > width && currentLine.length > 0) {
+                lines.push(currentLine);
+                currentLine = char;
+            } else {
+                currentLine = testLine;
+            }
+        }
+
+        // Push the last line if any
+        if (currentLine.length > 0) {
+            lines.push(currentLine);
+        }
+
+        // Print each line
+        for (let line of lines) {
+            context.fillText(line, 0, y);
+            // drawing a dash line for cancel
+            y -= 0.12 * lineHeight;
+            drawDashedLine([]);
+            y += 0.12 * lineHeight;
+            y += 0.5 * lineHeight; // Move to the next line
+        }
+
+        y += 0.5 * lineHeight;
+
+        context.font = '20pt Sans'
     })
 
 

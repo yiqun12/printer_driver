@@ -27,11 +27,11 @@ class PrinterEmitter extends EventEmitter { }
 const printerEmitter = new PrinterEmitter();
 
 
-function printer_usb(hex1, hex2, fileName, queue,networkIp) {
+function printer_usb(hex1, hex2, fileName, queue, networkIp) {
 
   console.log(fileName)
   const sec = fileName.substring(36, fileName.length - 4);
-  console.log(sec) 
+  console.log(sec)
   let device
   //const device  = new escpos.Network(networkIp);
   //const device = new escpos.USB(0x0FE6, 0x811E);
@@ -41,11 +41,11 @@ function printer_usb(hex1, hex2, fileName, queue,networkIp) {
       console.log("networkIp")
       console.log(networkIp)
       device = new escpos.Network(networkIp);
-      
+
       console.log(device)
     } else {
       device = new escpos.USB(hex1, hex2);
-    }   
+    }
     // console.log("hello")
 
     // const device = new escpos.USB()
@@ -86,7 +86,12 @@ function printer_usb(hex1, hex2, fileName, queue,networkIp) {
                 if (index !== -1) {
                   queue.splice(index, 1);
                 }
-                printerEmitter.emit('deleted', fileName, queue);
+                try {
+                  printerEmitter.emit('deleted', fileName, queue);
+                } catch (error) {
+                  console.error("Error emitting 'deleted' event:", error);
+                  // Handle the error, e.g., retry the emit, log to a file, alert the user, etc.
+                }
 
               }, parseInt(sec));
 

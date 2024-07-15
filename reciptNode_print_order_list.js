@@ -13,6 +13,39 @@
 // limitations under the License.
 const fs = require('fs')
 const { createCanvas, loadImage } = require('canvas')
+
+function calculateTotalLines(font, text, maxWidth) {
+    // Create a canvas to measure text width
+    const canvas = createCanvas(400, 200);
+    const context = canvas.getContext('2d');
+
+    context.font = '15pt Sans';
+
+    let chars = text.split(''); // Split the text into characters
+    let currentLine = '';
+    let lines = 0;
+
+    for (let char of chars) {
+        let testLine = currentLine + char;
+        let testWidth = context.measureText(testLine).width;
+
+        if (testWidth > maxWidth && currentLine.length > 0) {
+            lines++;
+            currentLine = char;
+        } else {
+            currentLine = testLine;
+        }
+    }
+
+    // Account for the last line
+    if (currentLine.length > 0) {
+        lines++;
+    }
+
+    return lines;
+}
+
+
 // const app = express();
 function reciptNode_print_order_list(randomUuid, receipt_JSON, selectedTable, discount, service_fee, total) {
 
@@ -150,10 +183,44 @@ function reciptNode_print_order_list(randomUuid, receipt_JSON, selectedTable, di
 
     // adding lines for the original item
     product.forEach(item => {
-        lines += 2;
+
+        let x = ""
+
+        for (let key in item.item_attributes) {
+            const value = item.item_attributes[key];
+            // console.log(value)
+            // Check if the value is an array
+            if (Array.isArray(value)) {
+                value.forEach(item => {
+                    // console.log(item)
+                    x += item + " ";
+                });
+            }
+            // Check if the value is an object (but not an array)
+            else if (typeof value === 'object' && value !== null) {
+                for (let subkey in value) {
+                    // console.log(value[subkey]);
+                    x += value[subkey] + " ";
+                }
+            }
+            else {
+                // console.log(value);
+                x += value + " ";
+            }
+        }
+        let text = item.CHI + " " + x
+        if (calculateTotalLines('15pt Sans', text, 300) != 1) {
+            lines += 1 + calculateTotalLines('15pt Sans', text, 300);
+        } else {
+            lines += 2;
+        }
+
+
         subtotal += item.item_Total;
+
     })
     // lines += 1; 
+
     const canvas = createCanvas(width, lines * lineHeight)
     const context = canvas.getContext('2d')
 
@@ -223,8 +290,8 @@ function reciptNode_print_order_list(randomUuid, receipt_JSON, selectedTable, di
         // context.fillText(`${item.quantity}*$${item.subtotal} = $${item.item_Total}`, 20, y+lineHeight);
         y += lineHeight;
         //total += item.item_Total;
-        let CHI = shortenName(item.CHI)
-        context.fillText(`${CHI}`, 0, y);
+        let CHI = item.CHI
+        //context.fillText(`${CHI}`, 0, y);
 
         //adding the attributes (go through everything and then print out all the leaf nodes child values)
 
@@ -258,9 +325,38 @@ function reciptNode_print_order_list(randomUuid, receipt_JSON, selectedTable, di
             }
         }
         // console.log(x)
-        context.fillText(`${x}`, 55 * 1.5, y);
+        //Adjust the loop to concatenate characters until the line width exceeds the limit.
+        let attributesChar = CHI + " " + x
+        let chars = attributesChar.split(''); // Split the text into characters
+        let currentLine = '';
+        let lines = [];
+        for (let char of chars) {
+            let testLine = currentLine + char;
+            let testWidth = context.measureText(testLine).width;
 
-        y += lineHeight;
+            if (testWidth > width && currentLine.length > 0) {
+                lines.push(currentLine);
+                currentLine = char;
+            } else {
+                currentLine = testLine;
+            }
+        }
+
+        // Push the last line if any
+        if (currentLine.length > 0) {
+            lines.push(currentLine);
+        }
+
+        // Print each line
+        for (let line of lines) {
+            context.fillText(line, 0, y);
+            y += lineHeight; // Move to the next line
+        }
+
+
+        //context.fillText(`${CHI} ${x}`, 0, y)
+
+        //y += lineHeight;
         context.font = '15pt Sans'
 
     })

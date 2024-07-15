@@ -38,7 +38,7 @@ const { printer_usb, printerEmitter } = require('./printer_usb')
 const { v4: uuidv4 } = require('uuid');
 var Ptouch = require('node-ptouch');
 var usb = require('usb');
-
+//To Do: 以下几个变量可以变成dynamic
 const back_vendorID = 0x0FE6
 const back_productId = 0x811E
 const front_vendorID = 0x0FE6
@@ -46,6 +46,7 @@ const front_productId = 0x811E
 const back_networkIp = '192.168.1.240'
 const front_networkIp = false
 const kiosk = false
+const BilanguageMode = true //
 
 
 // Middleware to parse JSON requests
@@ -178,10 +179,10 @@ app.post('/SendToKitchen', (req, res) => {
     if (req.body.data && req.body.data.length !== 0) {//empty
         for (let item of req.body.data) {
             for (let i = 0; i < item.quantity; i++) {
-                printLabel(item.name)
+                console.log(item.name)
             }
         }
-        const picname = reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
+        const picname = reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
 
         printQueue.push({
             vendorId: back_vendorID, productId: back_productId, fileName: picname, networkIp: back_networkIp
@@ -189,16 +190,16 @@ app.post('/SendToKitchen', (req, res) => {
 
 
         const randomUuid2 = uuidv4();
-        const picname2 = reciptNode_kitchen(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
+        const picname2 = reciptNode_kitchen(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
         printQueue.push({
             vendorId: front_vendorID, productId: front_productId, fileName: picname2, networkIp: front_networkIp
         });//back desk
         //enable this if you need a extra print in the backend
-        // const randomUuid3 = uuidv4();
-        // const picname3 = reciptNode_kitchen(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
-        // printQueue.push({
-        //     vendorId: back_vendorID, productId: back_productId, fileName: picname3,networkIp:back_networkIp
-        // });//back desk
+        const randomUuid3 = uuidv4();
+        const picname3 = reciptNode_kitchen(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable, currentDate,BilanguageMode)
+        printQueue.push({
+            vendorId: back_vendorID, productId: back_productId, fileName: picname3, networkIp: back_networkIp
+        });//back desk
 
     }
     res.send({ success: true, message: "Data received successfully" });
@@ -236,12 +237,12 @@ app.post('/DeletedSendToKitchen', (req, res) => {
     console.log(currentDate)
     if (req.body.data && req.body.data.length !== 0) {//empty
 
-        const picname = reciptNode_kitchen_cancel_item(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
+        const picname = reciptNode_kitchen_cancel_item(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate,BilanguageMode)
         printQueue.push({
             vendorId: back_vendorID, productId: back_productId, fileName: picname, networkIp: back_networkIp
         });//back desk
         const randomUuid2 = uuidv4();
-        const picname2 = reciptNode_kitchen_cancel_item(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
+        const picname2 = reciptNode_kitchen_cancel_item(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate,BilanguageMode)
         printQueue.push({
             vendorId: front_vendorID, productId: front_productId, fileName: picname2, networkIp: front_networkIp
         });//back desk
@@ -327,65 +328,65 @@ app.listen(3001, () => {
 
 
 // Function to print a label
-function printLabel(labelText) {
-    var ptouch = new Ptouch(1, { copies: 1 });
-    ptouch.insertData('myObjectName', labelText);
-    var data = ptouch.generate();
-    console.log(String(data));
+// function printLabel(labelText) {
+//     var ptouch = new Ptouch(1, { copies: 1 });
+//     ptouch.insertData('myObjectName', labelText);
+//     var data = ptouch.generate();
+//     console.log(String(data));
 
-    var printer = usb.findByIds(0x04f9, 0x209D);
+//     var printer = usb.findByIds(0x04f9, 0x209D);
 
-    if (!printer) {
-        console.log('Printer not found');
-        return;
-    }
+//     if (!printer) {
+//         console.log('Printer not found');
+//         return;
+//     }
 
-    printer.open();
+//     printer.open();
 
-    var outputEndpoint = null;
-    var interfaceIndex = 0;
-    var interfaceClaimed = false;
+//     var outputEndpoint = null;
+//     var interfaceIndex = 0;
+//     var interfaceClaimed = false;
 
-    try {
-        for (var iface of printer.interfaces) {
-            iface.claim();
-            interfaceClaimed = true;
-            for (var endpoint of iface.endpoints) {
-                if (endpoint.direction === 'out') {
-                    outputEndpoint = endpoint;
-                    break;
-                }
-            }
-            if (outputEndpoint) {
-                interfaceIndex = iface.interfaceNumber; // store the index for release
-                break; // Break out if endpoint found
-            }
-            iface.release(true); // Release if no endpoint found in this interface
-            interfaceClaimed = false;
-        }
+//     try {
+//         for (var iface of printer.interfaces) {
+//             iface.claim();
+//             interfaceClaimed = true;
+//             for (var endpoint of iface.endpoints) {
+//                 if (endpoint.direction === 'out') {
+//                     outputEndpoint = endpoint;
+//                     break;
+//                 }
+//             }
+//             if (outputEndpoint) {
+//                 interfaceIndex = iface.interfaceNumber; // store the index for release
+//                 break; // Break out if endpoint found
+//             }
+//             iface.release(true); // Release if no endpoint found in this interface
+//             interfaceClaimed = false;
+//         }
 
-        if (outputEndpoint) {
-            outputEndpoint.transfer(data, function (err) {
-                if (err) {
-                    console.log('Error sending data:', err);
-                } else {
-                    console.log('Data sent');
-                }
-                // Printer connection remains open for further operations
-            });
-        } else {
-            console.log('No valid output endpoint found');
-            if (interfaceClaimed) {
-                printer.interfaces[interfaceIndex].release(true); // Release interface, but keep printer open
-            }
-        }
-    } catch (error) {
-        console.error('An error occurred:', error);
-        if (interfaceClaimed) {
-            printer.interfaces[interfaceIndex].release(true); // Release interface, but keep printer open
-        }
-    }
-}
+//         if (outputEndpoint) {
+//             outputEndpoint.transfer(data, function (err) {
+//                 if (err) {
+//                     console.log('Error sending data:', err);
+//                 } else {
+//                     console.log('Data sent');
+//                 }
+//                 // Printer connection remains open for further operations
+//             });
+//         } else {
+//             console.log('No valid output endpoint found');
+//             if (interfaceClaimed) {
+//                 printer.interfaces[interfaceIndex].release(true); // Release interface, but keep printer open
+//             }
+//         }
+//     } catch (error) {
+//         console.error('An error occurred:', error);
+//         if (interfaceClaimed) {
+//             printer.interfaces[interfaceIndex].release(true); // Release interface, but keep printer open
+//         }
+//     }
+// }
 
 // Example usage:
 //printLabel('EATIFYDASH.COM');
