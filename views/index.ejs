@@ -47,6 +47,14 @@ limitations under the License. -->
                     body: JSON.stringify(event.data.json)
                 });
             }
+            if (event.data.type === 'PrintQRcode') {
+                console.log('PrintQRcode_received:', event.data.json);
+                fetch('/PrintQRcode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(event.data.json)
+                });
+            }
             if (event.data.type === 'OpenCashDraw') {
                 console.log('OpenCashDraw_received:', event.data.json);
                 fetch('/OpenCashDraw', {

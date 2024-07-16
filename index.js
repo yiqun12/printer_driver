@@ -20,6 +20,12 @@ const path = require('path');
 const opn = require('opn');
 const open = require('open');
 const { exec } = require('child_process');
+const { printPngFile } = require('node-brother-label-printer');
+//const QRCode = require('qrcode');
+//const path = require('path');
+const QRCode = require('qr-image');
+const sharp = require('sharp');
+const fs = require('fs');
 
 const app = express();
 // const { reciptNode_tips_customer } = require('./reciptNode_tips_customer');
@@ -46,8 +52,9 @@ const front_productId = 0x811E
 const back_networkIp = '192.168.1.240'
 const front_networkIp = false
 const kiosk = false
-const BilanguageMode = true //
-
+const BilanguageMode = false
+const label_vendorId = 0x04f9 //for ur brother label printer
+const label_productId = 0x209D
 
 // Middleware to parse JSON requests
 app.use(bodyParser.json());
@@ -196,7 +203,7 @@ app.post('/SendToKitchen', (req, res) => {
         });//back desk
         //enable this if you need a extra print in the backend
         const randomUuid3 = uuidv4();
-        const picname3 = reciptNode_kitchen(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable, currentDate,BilanguageMode)
+        const picname3 = reciptNode_kitchen(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
         printQueue.push({
             vendorId: back_vendorID, productId: back_productId, fileName: picname3, networkIp: back_networkIp
         });//back desk
@@ -204,6 +211,83 @@ app.post('/SendToKitchen', (req, res) => {
     }
     res.send({ success: true, message: "Data received successfully" });
 });
+
+app.post('/PrintQRcode', (req, res) => {
+    const data = req.body;
+    console.log("PrintQRcode")
+    console.log(data)
+    const ensureFolderExists = (folderPath) => {
+        if (!fs.existsSync(folderPath)) {
+            fs.mkdirSync(folderPath);
+        }
+    };
+    // Create 'qrcode' folder
+    const qrcodeFolder = path.join(__dirname, 'qrcode');
+    ensureFolderExists(qrcodeFolder);
+    data.forEach((item, index) => {
+        const tableParam = item.split('-');
+        const prefix = tableParam[0];
+        const suffix = tableParam[1];
+        const url = `https://eatifydash.com/store?store=${prefix}&table=${suffix}`;
+        const outputFilePath = path.join(qrcodeFolder, `qrcode-${index}.png`);
+        const options = {
+            width: 720,
+            height: 720,
+        };
+    
+        const qrSvg = QRCode.image(url, { type: 'png', size: options.width / 10 });
+        const qrPngBuffer = [];
+    
+        qrSvg.on('data', chunk => qrPngBuffer.push(chunk));
+        qrSvg.on('end', async () => {
+            const qrBuffer = Buffer.concat(qrPngBuffer);
+    
+            // Create an image with QR code and suffix text
+            const qrImage = sharp(qrBuffer)
+                .resize(options.width, options.height)
+                .extend({
+                    top: 0,
+                    bottom: 100, // Add extra space at the bottom for the text
+                    background: { r: 255, g: 255, b: 255, alpha: 0 }
+                });
+    
+            const textImage = sharp({
+                create: {
+                    width: options.width,
+                    height: 100,
+                    channels: 4,
+                    background: { r: 255, g: 255, b: 255, alpha: 1 }
+                }
+            })
+            .composite([{
+                input: Buffer.from(`<svg width="${options.width}" height="100">
+                    <text x="50%" y="50%" font-size="40" text-anchor="middle" fill="black">${suffix}</text>
+                </svg>`),
+                top: 0,
+                left: 0
+            }]);
+    
+            const finalImage = await qrImage.composite([{ input: await textImage.png().toBuffer(), top: options.height, left: 0 }]).png().toBuffer();
+    
+            // Save the final image
+            await sharp(finalImage).toFile(outputFilePath);
+    
+            console.log('QR code generated and saved to', outputFilePath);
+    
+            // Assuming printPngFile is a function defined elsewhere in your code
+            printPngFile({
+                vendorId: label_vendorId,
+                productId: label_productId,
+                filename: outputFilePath,
+                options: { landscape: false, labelWidth: "62-mm-wide continuous" }, // or "102-mm-wide continuous"
+                compression: { enable: true }
+            });
+        });
+    });
+
+    res.send({ success: true, message: "Data received successfully" });
+});
+
 app.post('/listOrder', (req, res) => {
     const data = req.body;
     //console.log(JSON.stringify(req.body.data))
@@ -237,12 +321,12 @@ app.post('/DeletedSendToKitchen', (req, res) => {
     console.log(currentDate)
     if (req.body.data && req.body.data.length !== 0) {//empty
 
-        const picname = reciptNode_kitchen_cancel_item(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate,BilanguageMode)
+        const picname = reciptNode_kitchen_cancel_item(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
         printQueue.push({
             vendorId: back_vendorID, productId: back_productId, fileName: picname, networkIp: back_networkIp
         });//back desk
         const randomUuid2 = uuidv4();
-        const picname2 = reciptNode_kitchen_cancel_item(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate,BilanguageMode)
+        const picname2 = reciptNode_kitchen_cancel_item(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
         printQueue.push({
             vendorId: front_vendorID, productId: front_productId, fileName: picname2, networkIp: front_networkIp
         });//back desk
