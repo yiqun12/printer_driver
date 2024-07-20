@@ -27,16 +27,25 @@ class PrinterEmitter extends EventEmitter { }
 const printerEmitter = new PrinterEmitter();
 
 
-function printer_usb(hex1, hex2, fileName, queue) {
+function printer_usb(hex1, hex2, fileName, queue, networkIp) {
 
   console.log(fileName)
   const sec = fileName.substring(36, fileName.length - 4);
   console.log(sec)
+  let device
   //const device  = new escpos.Network(networkIp);
   //const device = new escpos.USB(0x0FE6, 0x811E);
 
   try {
-    const device = new escpos.USB(hex1, hex2);
+    if (networkIp) {
+      console.log("networkIp")
+      console.log(networkIp)
+      device = new escpos.Network(networkIp);
+
+      console.log(device)
+    } else {
+      device = new escpos.USB(hex1, hex2);
+    }
     // console.log("hello")
 
     // const device = new escpos.USB()
@@ -92,22 +101,7 @@ function printer_usb(hex1, hex2, fileName, queue) {
     });
   } catch (err) {
     console.error("An error occurred in printer_usb:", err);
-    // setTimeout(function () {
-    //   // Assuming 'queue' is the array containing your print jobs
-    //   // Remove an item with fileName
-    //   try {
-    //     fs.unlinkSync(fileName);
-    //     console.log('File successfully deleted');
-    //   } catch (err) {
-    //     console.error("Error deleting file:", err);
-    //   }
-    //   const index = queue.findIndex(item => item.fileName === fileName);
-    //   if (index !== -1) {
-    //     queue.splice(index, 1);
-    //   }
-    //   printerEmitter.emit('deleted', fileName, queue);
 
-    // }, parseInt(sec));
     if (device) device.close();
     reject(err);
 

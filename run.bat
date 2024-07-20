@@ -22,3 +22,4 @@ echo Any existing Node.js application on port 3001 has been stopped.
 rem Start your node application
 cd %~dp0
 start "" nodemon index.js
+
