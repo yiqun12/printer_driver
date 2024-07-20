@@ -86,12 +86,7 @@ function printer_usb(hex1, hex2, fileName, queue, networkIp) {
                 if (index !== -1) {
                   queue.splice(index, 1);
                 }
-                try {
-                  printerEmitter.emit('deleted', fileName, queue);
-                } catch (error) {
-                  console.error("Error emitting 'deleted' event:", error);
-                  // Handle the error, e.g., retry the emit, log to a file, alert the user, etc.
-                }
+                printerEmitter.emit('deleted', fileName, queue);
 
               }, parseInt(sec));
 
