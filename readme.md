@@ -8,10 +8,10 @@
 
 Here're some of the project's best features:
 
-*   User Authentication: Real-time Data Handling: Uses Firestore to handle real-time data for printing tasks from Eatifydas.com/account.
+*   User Authentication: Supports Google login and email/password authentication. Real-time Data Handling: Uses Firestore to handle real-time data for printing tasks.
 *   Receipt Printing: Capable of printing merchant receipts customer receipts kitchen orders and cancelled kitchen orders. Cash Drawer Control: Provides functionality to open the cash drawer.
 *   Printer Queue Management: Manages a queue of print tasks handling one task at a time.
-*   Support for Multiple Printers: Can send print commands to different EPSON printers based on the task.
+*   Support for Multiple Printers: Can send print commands to different printers based on the task.
 
 <h2>🛠️ Installation Steps:</h2>
 

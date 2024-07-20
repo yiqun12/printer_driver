@@ -25,15 +25,12 @@ const { createCanvas, loadImage } = require('canvas')
 escpos.Network = require('escpos-network');
 
 
-function printer_cashdraw(hex1,hex2,networkIp) {
-let device
-//const device  = new escpos.Network(networkIp);
-if (networkIp) {
-  device = new escpos.Network(networkIp);
+function printer_cashdraw(hex1,hex2) {
 
-} else {
-  device = new escpos.USB(hex1, hex2);
-}   
+//const device  = new escpos.Network(networkIp);
+const device = new escpos.USB(hex1, hex2);
+
+// console.log("hello")
 
 // const device = new escpos.USB()
 const options = { encoding: "GB18030" }

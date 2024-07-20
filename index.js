@@ -19,14 +19,6 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const opn = require('opn');
 const open = require('open');
-const { exec } = require('child_process');
-const { printPngFile } = require('node-brother-label-printer');
-//const QRCode = require('qrcode');
-//const path = require('path');
-const QRCode = require('qr-image');
-const sharp = require('sharp');
-const fs = require('fs');
-
 const app = express();
 // const { reciptNode_tips_customer } = require('./reciptNode_tips_customer');
 const { reciptNode_tips_copy } = require('./reciptNode_tips_copy');
@@ -38,23 +30,16 @@ const { bankReceipt } = require('./bankReceipt')
 const { reciptNode_kitchen_cancel_item } = require('./reciptNode_kitchen_cancel_item')
 
 const { printer_cashdraw } = require('./printer_cashdraw')
-//const { printer_network } = require('./printer_network')
+const { printer_network } = require('./printer_network')
 const { printer_usb, printerEmitter } = require('./printer_usb')
-
 const { v4: uuidv4 } = require('uuid');
-var Ptouch = require('node-ptouch');
-var usb = require('usb');
-//To Do: 以下几个变量可以变成dynamic
-const back_vendorID = 0x0FE6
-const back_productId = 0x811E
-const front_vendorID = 0x0FE6
-const front_productId = 0x811E
-const back_networkIp = '192.168.1.240'
-const front_networkIp = '192.168.1.240'
-const kiosk = false
-const BilanguageMode = false
-const label_vendorId = 0x04f9 //for ur brother label printer
-const label_productId = 0x209D
+
+const back_vendorID = 0x04B8
+const back_productId = 0x0E20
+const front_vendorID = 0x04B8
+const front_productId = 0x0202
+
+
 
 // Middleware to parse JSON requests
 app.use(bodyParser.json());
@@ -90,12 +75,13 @@ function formatPhoneNumber(phoneNumber) {
 queueEmitter.on('updated', (updatedQueue) => {
     //console.log('Queue updated:', updatedQueue);
     updatedQueue.forEach(item => {
+        // Pass the queue itself to the printer_usb function
         //console.log(updatedQueue.length)
         if (updatedQueue.length === 1) {
             //console.log(item.vendorId)
             //console.log(item.productId)
 
-            printer_usb(item.vendorId, item.productId, item.fileName, updatedQueue, item?.networkIp);
+            printer_usb(item.vendorId, item.productId, item.fileName, updatedQueue);
         }
     });
     // Perform any additional actions needed when the queue updates
@@ -103,11 +89,12 @@ queueEmitter.on('updated', (updatedQueue) => {
 printerEmitter.on('deleted', (fileName, queue) => {
     //console.log(`Item with filename ${fileName} was deleted from the queue.`);
     console.log(queue)
+    // Pass the queue itself to the printer_usb function
     console.log(queue.length)
     if (queue.length !== 0) {
         //console.log(item.vendorId)
         //console.log(item.productId)
-        printer_usb(queue[0].vendorId, queue[0].productId, queue[0].fileName, queue, queue[0]?.networkIp);
+        printer_usb(queue[0].vendorId, queue[0].productId, queue[0].fileName, queue);
     }
 
     // Perform additional actions if necessary
@@ -126,6 +113,7 @@ app.post('/MerchantReceipt', (req, res) => {
     let restaurant_phone = req.body.storePhone
     if (req.body.data && req.body.data.length !== 0) {//empty
 
+        //printer_usb(0x0FE6, 0x0FE6, "merchant.png")
         printQueue.push({
             vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_tips_copy(
                 randomUuid,
@@ -139,7 +127,7 @@ app.post('/MerchantReceipt', (req, res) => {
                 restaurant_address_2,
                 formatPhoneNumber(restaurant_phone),
                 "Merchant Copy"
-            ), networkIp: front_networkIp
+            )
         });
     }
     res.send({ success: true, message: "Data received successfully" });
@@ -170,7 +158,7 @@ app.post('/CustomerReceipt', (req, res) => {
                 restaurant_address_2,
                 formatPhoneNumber(restaurant_phone),
                 "Customer Copy"
-            ), networkIp: front_networkIp
+            )
         });
     }
     res.send({ success: true, message: "Data received successfully" });
@@ -184,110 +172,30 @@ app.post('/SendToKitchen', (req, res) => {
     // printer_network('192.168.1.204', "kitchen.png")
     const currentDate = new Date();
     if (req.body.data && req.body.data.length !== 0) {//empty
-        for (let item of req.body.data) {
-            for (let i = 0; i < item.quantity; i++) {
-                console.log(item.name)
-            }
-        }
-        const picname = reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
 
+        const picname = reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
         printQueue.push({
-            vendorId: back_vendorID, productId: back_productId, fileName: picname, networkIp: back_networkIp
+            vendorId: back_vendorID, productId: back_productId, fileName: picname
         });//front desk
-
-
         const randomUuid2 = uuidv4();
-        const picname2 = reciptNode_kitchen(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
+        const picname2 = reciptNode_kitchen(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
         printQueue.push({
-            vendorId: front_vendorID, productId: front_productId, fileName: picname2, networkIp: front_networkIp
-        });//back desk
-        //enable this if you need a extra print in the backend
-        const randomUuid3 = uuidv4();
-        const picname3 = reciptNode_kitchen(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
-        printQueue.push({
-            vendorId: back_vendorID, productId: back_productId, fileName: picname3, networkIp: back_networkIp
+            vendorId: front_vendorID, productId: front_productId, fileName: picname2
         });//back desk
 
+        const randomUuid3 = uuidv4();
+        const picname3 = reciptNode_kitchen(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
+        printQueue.push({
+            vendorId: back_vendorID, productId: back_productId, fileName: picname3
+        });//back desk
+        // printQueue.push({
+        //     vendorId: 0x0FE6, productId: 0x811E, fileName: reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable,
+        //     )
+        // });//back desk
+        //console.log("SendToKitchen:", data);
     }
     res.send({ success: true, message: "Data received successfully" });
 });
-
-app.post('/PrintQRcode', (req, res) => {
-    const data = req.body;
-    console.log("PrintQRcode")
-    console.log(data)
-    const ensureFolderExists = (folderPath) => {
-        if (!fs.existsSync(folderPath)) {
-            fs.mkdirSync(folderPath);
-        }
-    };
-    // Create 'qrcode' folder
-    const qrcodeFolder = path.join(__dirname, 'qrcode');
-    ensureFolderExists(qrcodeFolder);
-    data.forEach((item, index) => {
-        const tableParam = item.split('-');
-        const prefix = tableParam[0];
-        const suffix = tableParam[1];
-        const url = `https://eatifydash.com/store?store=${prefix}&table=${suffix}`;
-        const outputFilePath = path.join(qrcodeFolder, `qrcode-${index}.png`);
-        const options = {
-            width: 720,
-            height: 720,
-        };
-    
-        const qrSvg = QRCode.image(url, { type: 'png', size: options.width / 10 });
-        const qrPngBuffer = [];
-    
-        qrSvg.on('data', chunk => qrPngBuffer.push(chunk));
-        qrSvg.on('end', async () => {
-            const qrBuffer = Buffer.concat(qrPngBuffer);
-    
-            // Create an image with QR code and suffix text
-            const qrImage = sharp(qrBuffer)
-                .resize(options.width, options.height)
-                .extend({
-                    top: 0,
-                    bottom: 100, // Add extra space at the bottom for the text
-                    background: { r: 255, g: 255, b: 255, alpha: 0 }
-                });
-    
-            const textImage = sharp({
-                create: {
-                    width: options.width,
-                    height: 100,
-                    channels: 4,
-                    background: { r: 255, g: 255, b: 255, alpha: 1 }
-                }
-            })
-            .composite([{
-                input: Buffer.from(`<svg width="${options.width}" height="100">
-                    <text x="50%" y="50%" font-size="40" text-anchor="middle" fill="black">${suffix}</text>
-                </svg>`),
-                top: 0,
-                left: 0
-            }]);
-    
-            const finalImage = await qrImage.composite([{ input: await textImage.png().toBuffer(), top: options.height, left: 0 }]).png().toBuffer();
-    
-            // Save the final image
-            await sharp(finalImage).toFile(outputFilePath);
-    
-            console.log('QR code generated and saved to', outputFilePath);
-    
-            // Assuming printPngFile is a function defined elsewhere in your code
-            printPngFile({
-                vendorId: label_vendorId,
-                productId: label_productId,
-                filename: outputFilePath,
-                options: { landscape: false, labelWidth: "62-mm-wide continuous" }, // or "102-mm-wide continuous"
-                compression: { enable: true }
-            });
-        });
-    });
-
-    res.send({ success: true, message: "Data received successfully" });
-});
-
 app.post('/listOrder', (req, res) => {
     const data = req.body;
     //console.log(JSON.stringify(req.body.data))
@@ -298,8 +206,7 @@ app.post('/listOrder', (req, res) => {
     if (req.body.data && req.body.data.length !== 0) {//empty
 
         printQueue.push({
-            vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_print_order_list(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable),
-            networkIp: front_networkIp
+            vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_print_order_list(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable)
         });
 
     }
@@ -321,14 +228,14 @@ app.post('/DeletedSendToKitchen', (req, res) => {
     console.log(currentDate)
     if (req.body.data && req.body.data.length !== 0) {//empty
 
-        const picname = reciptNode_kitchen_cancel_item(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
+        const picname = reciptNode_kitchen_cancel_item(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
         printQueue.push({
-            vendorId: back_vendorID, productId: back_productId, fileName: picname, networkIp: back_networkIp
+            vendorId: back_vendorID, productId: back_productId, fileName: picname
         });//back desk
         const randomUuid2 = uuidv4();
-        const picname2 = reciptNode_kitchen_cancel_item(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
+        const picname2 = reciptNode_kitchen_cancel_item(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate)
         printQueue.push({
-            vendorId: front_vendorID, productId: front_productId, fileName: picname2, networkIp: front_networkIp
+            vendorId: front_vendorID, productId: front_productId, fileName: picname2
         });//back desk
     }
     res.send({ success: true, message: "Data received successfully" });
@@ -346,6 +253,7 @@ app.post('/bankReceipt', (req, res) => {
     let restaurant_address_2 = req.body.storeCityAddress + ' ' + req.body.storeState + ' ' + req.body.storeZipCode
     let restaurant_phone = req.body.storePhone
 
+    //printer_usb(0x0FE6, 0x0FE6, "merchant.png")
     printQueue.push({
         vendorId: front_vendorID, productId: front_productId, fileName: bankReceipt(
             randomUuid,
@@ -354,7 +262,7 @@ app.post('/bankReceipt', (req, res) => {
             restaurant_name,
             restaurant_address_1,
             restaurant_address_2,
-            formatPhoneNumber(restaurant_phone)), networkIp: front_networkIp
+            formatPhoneNumber(restaurant_phone))
     });
     res.send({ success: true, message: "Data received successfully" });
 });
@@ -362,116 +270,41 @@ app.post('/bankReceipt', (req, res) => {
 
 app.post('/OpenCashDraw', (req, res) => {
     const data = req.body;
-    printer_cashdraw(front_vendorID, front_productId, front_networkIp)
+    printer_cashdraw(front_vendorID, front_productId)
     console.log("OpenCashDraw:", data);
     res.send({ success: true, message: "Data received successfully" });
+});
+
+app.post('/init', (req, res) => {
+    const data = req.body;
+    console.log("init:", data.id);
+
+    opn(`https://eatify-22231.web.app/account#code?store=${data.id}`).then(() => {
+        res.send({ success: true, message: "Data received successfully and browser opened" });
+    }).catch(err => {
+        console.error(err);
+        res.status(500).send({ success: false, message: "Failed to open browser" });
+    });
 });
 
 
 app.listen(3001, () => {
     console.log('Server is running on http://localhost:3001');
-    if (kiosk) {
-        open('https://eatify-22231.web.app/account', {
-            app: {
-                name: open.apps.edge,
-                arguments: [
-                    '--no-sandbox',
-                    '--kiosk',
-                    '--force-device-scale-factor=1.0' // Adjusts zoom level to 150%
-                ]
-            }
-        })
-            .then(() => {
-                console.log('Browser opened in kiosk mode');
-            })
-            .catch(err => {
-                console.error('Failed to open browser in kiosk mode:', err);
-            });
-    }
 
-
-    open('https://eatify-22231.web.app/account#code?store=bubbleshop', {
+    open('https://eatify-22231.web.app/account', {
         app: {
             name: open.apps.chrome,
             arguments: [
                 '--no-sandbox',
                 '--kiosk',
-                '--force-device-scale-factor=1.0' // Adjusts zoom level to 150%
+                '--force-device-scale-factor=1.5' // Adjusts zoom level to 150%
             ]
         }
     })
-        .then(() => {
-            console.log('Browser opened in kiosk mode with Microsoft Edge');
-        })
-        .catch(err => {
-            console.error('Failed to open Microsoft Edge in kiosk mode:', err);
-        });
+    .then(() => {
+        console.log('Browser opened in kiosk mode');
+    })
+    .catch(err => {
+        console.error('Failed to open browser in kiosk mode:', err);
+    });
 });
-
-
-
-
-// Function to print a label
-// function printLabel(labelText) {
-//     var ptouch = new Ptouch(1, { copies: 1 });
-//     ptouch.insertData('myObjectName', labelText);
-//     var data = ptouch.generate();
-//     console.log(String(data));
-
-//     var printer = usb.findByIds(0x04f9, 0x209D);
-
-//     if (!printer) {
-//         console.log('Printer not found');
-//         return;
-//     }
-
-//     printer.open();
-
-//     var outputEndpoint = null;
-//     var interfaceIndex = 0;
-//     var interfaceClaimed = false;
-
-//     try {
-//         for (var iface of printer.interfaces) {
-//             iface.claim();
-//             interfaceClaimed = true;
-//             for (var endpoint of iface.endpoints) {
-//                 if (endpoint.direction === 'out') {
-//                     outputEndpoint = endpoint;
-//                     break;
-//                 }
-//             }
-//             if (outputEndpoint) {
-//                 interfaceIndex = iface.interfaceNumber; // store the index for release
-//                 break; // Break out if endpoint found
-//             }
-//             iface.release(true); // Release if no endpoint found in this interface
-//             interfaceClaimed = false;
-//         }
-
-//         if (outputEndpoint) {
-//             outputEndpoint.transfer(data, function (err) {
-//                 if (err) {
-//                     console.log('Error sending data:', err);
-//                 } else {
-//                     console.log('Data sent');
-//                 }
-//                 // Printer connection remains open for further operations
-//             });
-//         } else {
-//             console.log('No valid output endpoint found');
-//             if (interfaceClaimed) {
-//                 printer.interfaces[interfaceIndex].release(true); // Release interface, but keep printer open
-//             }
-//         }
-//     } catch (error) {
-//         console.error('An error occurred:', error);
-//         if (interfaceClaimed) {
-//             printer.interfaces[interfaceIndex].release(true); // Release interface, but keep printer open
-//         }
-//     }
-// }
-
-// Example usage:
-//printLabel('EATIFYDASH.COM');
-//printLabel('EATIFYDASH.COM2');
