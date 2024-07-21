@@ -29,13 +29,13 @@ const fs = require('fs');
 
 const app = express();
 // const { reciptNode_tips_customer } = require('./reciptNode_tips_customer');
-const { reciptNode_tips_copy } = require('./reciptNode_tips_copy');
+const { PNGMerchantReceipt } = require('./PNGMerchantReceipt');
 // const { reciptNode_tips_merchant_terminal } = require('./reciptNode_tips_merchant_terminal')
-const { reciptNode_print_order_list } = require('./reciptNode_print_order_list')
+const { PNGOrderList } = require('./PNGOrderList')
 
-const { reciptNode_kitchen } = require('./reciptNode_kitchen')
+const { PNGKitchenPlace } = require('./PNGKitchenPlace')
 const { bankReceipt } = require('./bankReceipt')
-const { reciptNode_kitchen_cancel_item } = require('./reciptNode_kitchen_cancel_item')
+const { PNGKitchenCancel } = require('./PNGKitchenCancel')
 
 const { printer_cashdraw } = require('./printer_cashdraw')
 //const { printer_network } = require('./printer_network')
@@ -49,8 +49,8 @@ const back_vendorID = 0x0FE6
 const back_productId = 0x811E
 const front_vendorID = 0x0FE6
 const front_productId = 0x811E
-const back_networkIp = '192.168.1.240'
-const front_networkIp = '192.168.1.240'
+const back_networkIp = false
+const front_networkIp = false
 const kiosk = false
 const BilanguageMode = false
 const label_vendorId = 0x04f9 //for ur brother label printer
@@ -77,6 +77,7 @@ printQueue.push = function (...args) {
     originalPush.apply(this, args);
     queueEmitter.emit('updated', this);
 };
+
 function formatPhoneNumber(phoneNumber) {
     // Extract the first 3, next 3, and last 4 digits
     var part1 = phoneNumber.slice(0, 3);
@@ -102,8 +103,8 @@ queueEmitter.on('updated', (updatedQueue) => {
 });
 printerEmitter.on('deleted', (fileName, queue) => {
     //console.log(`Item with filename ${fileName} was deleted from the queue.`);
-    console.log(queue)
-    console.log(queue.length)
+    //console.log(queue)
+    //console.log(queue.length)
     if (queue.length !== 0) {
         //console.log(item.vendorId)
         //console.log(item.productId)
@@ -114,7 +115,7 @@ printerEmitter.on('deleted', (fileName, queue) => {
 });
 
 // Endpoint to accept data from the client
-app.post('/MerchantReceipt', (req, res) => {
+app.post('/PNGMerchantReceipt', (req, res) => {
     const data = req.body;
     console.log("MerchantReceipt")
     const randomUuid = uuidv4();
@@ -127,7 +128,7 @@ app.post('/MerchantReceipt', (req, res) => {
     if (req.body.data && req.body.data.length !== 0) {//empty
 
         printQueue.push({
-            vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_tips_copy(
+            vendorId: front_vendorID, productId: front_productId, fileName: PNGMerchantReceipt(
                 randomUuid,
                 JSON.stringify(req.body.data), req.body.selectedTable,
                 req.body.discount,
@@ -149,7 +150,6 @@ app.post('/CustomerReceipt', (req, res) => {
     const data = req.body;
     console.log("CustomerReceipt")
     // const updatedJsonString = JSON.stringify(req.body.data.map(obj => ({ ...obj, itemTotalPrice: parseFloat(obj.itemTotalPrice) })));
-    // console.log(updatedJsonString)
     const randomUuid = uuidv4();
     let restaurant_name_CHI = req.body.storeNameCHI
     let restaurant_name = req.body.storeName
@@ -158,7 +158,7 @@ app.post('/CustomerReceipt', (req, res) => {
     let restaurant_phone = req.body.storePhone
     if (req.body.data && req.body.data.length !== 0) {//empty
         printQueue.push({
-            vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_tips_copy(
+            vendorId: front_vendorID, productId: front_productId, fileName: PNGMerchantReceipt(
                 randomUuid,
                 JSON.stringify(req.body.data), req.body.selectedTable,
                 req.body.discount,
@@ -178,18 +178,17 @@ app.post('/CustomerReceipt', (req, res) => {
 
 app.post('/SendToKitchen', (req, res) => {
     const data = req.body;
-    //console.log(JSON.stringify(req.body.data))
+    console.log("sendToKitchen")
     const randomUuid = uuidv4();
-    //console.log(randomUuid);
     // printer_network('192.168.1.204', "kitchen.png")
     const currentDate = new Date();
     if (req.body.data && req.body.data.length !== 0) {//empty
         for (let item of req.body.data) {
             for (let i = 0; i < item.quantity; i++) {
-                console.log(item.name)
+                //console.log(item.name)
             }
         }
-        const picname = reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
+        const picname = PNGKitchenPlace(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
 
         printQueue.push({
             vendorId: back_vendorID, productId: back_productId, fileName: picname, networkIp: back_networkIp
@@ -197,13 +196,13 @@ app.post('/SendToKitchen', (req, res) => {
 
 
         const randomUuid2 = uuidv4();
-        const picname2 = reciptNode_kitchen(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
+        const picname2 = PNGKitchenPlace(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
         printQueue.push({
             vendorId: front_vendorID, productId: front_productId, fileName: picname2, networkIp: front_networkIp
         });//back desk
         //enable this if you need a extra print in the backend
         const randomUuid3 = uuidv4();
-        const picname3 = reciptNode_kitchen(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
+        const picname3 = PNGKitchenPlace(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
         printQueue.push({
             vendorId: back_vendorID, productId: back_productId, fileName: picname3, networkIp: back_networkIp
         });//back desk
@@ -215,7 +214,6 @@ app.post('/SendToKitchen', (req, res) => {
 app.post('/PrintQRcode', (req, res) => {
     const data = req.body;
     console.log("PrintQRcode")
-    console.log(data)
     const ensureFolderExists = (folderPath) => {
         if (!fs.existsSync(folderPath)) {
             fs.mkdirSync(folderPath);
@@ -290,43 +288,37 @@ app.post('/PrintQRcode', (req, res) => {
 
 app.post('/listOrder', (req, res) => {
     const data = req.body;
-    //console.log(JSON.stringify(req.body.data))
+    console.log("listOrder")
     const randomUuid = uuidv4();
-    console.log(data)
-    //console.log(randomUuid);
-    // printer_network('192.168.1.204', "kitchen.png")
     if (req.body.data && req.body.data.length !== 0) {//empty
 
         printQueue.push({
-            vendorId: front_vendorID, productId: front_productId, fileName: reciptNode_print_order_list(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable),
+            vendorId: front_vendorID, productId: front_productId, fileName: PNGOrderList(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable),
             networkIp: front_networkIp
         });
 
     }
     //front desk
     // printQueue.push({
-    //     vendorId: 0x0FE6, productId: 0x811E, fileName: reciptNode_kitchen(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable,
+    //     vendorId: 0x0FE6, productId: 0x811E, fileName: PNGKitchenPlace(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable,
     //     )
     // });//back desk
-    console.log("good")
-    //console.log("SendToKitchen:", data);
     res.send({ success: true, message: "Data received successfully" });
 });
 
 app.post('/DeletedSendToKitchen', (req, res) => {
     const data = req.body;
-    //console.log(JSON.stringify(req.body.data))
     const randomUuid = uuidv4();
     const currentDate = new Date();
-    console.log(currentDate)
+    console.log("DeletedSendToKitchen")
     if (req.body.data && req.body.data.length !== 0) {//empty
 
-        const picname = reciptNode_kitchen_cancel_item(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
+        const picname = PNGKitchenCancel(randomUuid, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
         printQueue.push({
             vendorId: back_vendorID, productId: back_productId, fileName: picname, networkIp: back_networkIp
         });//back desk
         const randomUuid2 = uuidv4();
-        const picname2 = reciptNode_kitchen_cancel_item(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
+        const picname2 = PNGKitchenCancel(randomUuid2, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
         printQueue.push({
             vendorId: front_vendorID, productId: front_productId, fileName: picname2, networkIp: front_networkIp
         });//back desk
@@ -337,7 +329,6 @@ app.post('/DeletedSendToKitchen', (req, res) => {
 app.post('/bankReceipt', (req, res) => {
     const data = req.body;
     console.log("bankReceipt")
-    //console.log(req.body)
     const randomUuid = uuidv4();
 
     let restaurant_name_CHI = req.body.storeNameCHI
@@ -363,7 +354,7 @@ app.post('/bankReceipt', (req, res) => {
 app.post('/OpenCashDraw', (req, res) => {
     const data = req.body;
     printer_cashdraw(front_vendorID, front_productId, front_networkIp)
-    console.log("OpenCashDraw:", data);
+    console.log("OpenCashDraw:");
     res.send({ success: true, message: "Data received successfully" });
 });
 
@@ -410,68 +401,3 @@ app.listen(3001, () => {
 
 
 
-
-// Function to print a label
-// function printLabel(labelText) {
-//     var ptouch = new Ptouch(1, { copies: 1 });
-//     ptouch.insertData('myObjectName', labelText);
-//     var data = ptouch.generate();
-//     console.log(String(data));
-
-//     var printer = usb.findByIds(0x04f9, 0x209D);
-
-//     if (!printer) {
-//         console.log('Printer not found');
-//         return;
-//     }
-
-//     printer.open();
-
-//     var outputEndpoint = null;
-//     var interfaceIndex = 0;
-//     var interfaceClaimed = false;
-
-//     try {
-//         for (var iface of printer.interfaces) {
-//             iface.claim();
-//             interfaceClaimed = true;
-//             for (var endpoint of iface.endpoints) {
-//                 if (endpoint.direction === 'out') {
-//                     outputEndpoint = endpoint;
-//                     break;
-//                 }
-//             }
-//             if (outputEndpoint) {
-//                 interfaceIndex = iface.interfaceNumber; // store the index for release
-//                 break; // Break out if endpoint found
-//             }
-//             iface.release(true); // Release if no endpoint found in this interface
-//             interfaceClaimed = false;
-//         }
-
-//         if (outputEndpoint) {
-//             outputEndpoint.transfer(data, function (err) {
-//                 if (err) {
-//                     console.log('Error sending data:', err);
-//                 } else {
-//                     console.log('Data sent');
-//                 }
-//                 // Printer connection remains open for further operations
-//             });
-//         } else {
-//             console.log('No valid output endpoint found');
-//             if (interfaceClaimed) {
-//                 printer.interfaces[interfaceIndex].release(true); // Release interface, but keep printer open
-//             }
-//         }
-//     } catch (error) {
-//         console.error('An error occurred:', error);
-//         if (interfaceClaimed) {
-//             printer.interfaces[interfaceIndex].release(true); // Release interface, but keep printer open
-//         }
-//     }
-// }
-
-// Example usage:
-//printLabel('EATIFYDASH.COM');
-//printLabel('EATIFYDASH.COM2');

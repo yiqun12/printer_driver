@@ -22,7 +22,7 @@ function bankReceipt(randomUuid, receipt_JSON, selectedTable, restaurant_name_CH
     restaurant_address_1,
     restaurant_address_2,
     restaurant_phone) {
-    console.log(receipt_JSON)
+    console.log("bankReceipt")
     /**generate new png picture receipt */
     const width = 300
     let y = 20;

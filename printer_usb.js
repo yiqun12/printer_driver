@@ -31,7 +31,6 @@ function printer_usb(hex1, hex2, fileName, queue, networkIp) {
 
   console.log(fileName)
   const sec = fileName.substring(36, fileName.length - 4);
-  console.log(sec)
   let device
   //const device  = new escpos.Network(networkIp);
   //const device = new escpos.USB(0x0FE6, 0x811E);
@@ -39,21 +38,15 @@ function printer_usb(hex1, hex2, fileName, queue, networkIp) {
   try {
     if (networkIp) {
       console.log("networkIp")
-      console.log(networkIp)
       device = new escpos.Network(networkIp);
 
-      console.log(device)
     } else {
+      console.log("USB")
       device = new escpos.USB(hex1, hex2);
     }
-    // console.log("hello")
 
     // const device = new escpos.USB()
     const options = { encoding: "GB18030" }
-    // const device  = new escpos.RawBT();
-    // const device  = new escpos.Network('localhost');
-    // const device  = new escpos.Serial('/dev/usb/lp0');
-    // const printer = new escpos.Printer(device, options);
 
     const printer = new escpos.Printer(device, options);
 
@@ -78,12 +71,12 @@ function printer_usb(hex1, hex2, fileName, queue, networkIp) {
                 // Remove an item with fileName
                 try {
                   fs.unlinkSync(fileName);
-                  console.log('File successfully deleted');
+                  console.log('File successfully deleted'+fileName);
                 } catch (err) {
                   console.error("Error deleting file:", err);
                 }
                 const index = queue.findIndex(item => item.fileName === fileName);
-                if (index !== -1) {
+                if (index !== -1) {//didnt find, go next
                   queue.splice(index, 1);
                 }
                 printerEmitter.emit('deleted', fileName, queue);
