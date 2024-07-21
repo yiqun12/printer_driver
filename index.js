@@ -45,10 +45,11 @@ const { v4: uuidv4 } = require('uuid');
 var Ptouch = require('node-ptouch');
 var usb = require('usb');
 //To Do: 以下几个变量可以变成dynamic
-const back_vendorID = 0x0FE6
-const back_productId = 0x811E
-const front_vendorID = 0x0FE6
-const front_productId = 0x811E
+const back_vendorID = 0x04B8
+const back_productId = 0x0E20
+const front_vendorID = 0x04B8
+const front_productId = 0x0202
+
 const back_networkIp = false
 const front_networkIp = false
 const kiosk = false
