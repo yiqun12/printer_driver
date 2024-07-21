@@ -27,7 +27,7 @@ function PNGKitchenPlace(randomUuid, receipt_JSON, selectedTable, currentDate, B
         const canvas = createCanvas(400, 200)
         const context = canvas.getContext('2d');
 
-        context.font = '20pt Sans';
+        context.font = font;
 
         let chars = text.split(''); // Split the text into characters
         let currentLine = '';
@@ -139,8 +139,8 @@ function PNGKitchenPlace(randomUuid, receipt_JSON, selectedTable, currentDate, B
             }
         }
         let text = name + " " + x
-        if (calculateTotalLines('20pt Sans', text, 300) != 1) {
-            lines += 1 + 0.5 * (calculateTotalLines('20pt Sans', text, 300));
+        if (calculateTotalLines('20pt Sans', text, width) != 1) {
+            lines += 1 + 0.5 * (calculateTotalLines('20pt Sans', text, width));
         } else {
             lines += 1;
         }

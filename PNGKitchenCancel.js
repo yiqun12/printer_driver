@@ -20,7 +20,7 @@ function PNGKitchenCancel(randomUuid, receipt_JSON, selectedTable, currentDate, 
         const canvas = createCanvas(400, 200);
         const context = canvas.getContext('2d');
 
-        context.font = '20pt Sans';
+        context.font = font;
 
         let chars = text.split(''); // Split the text into characters
         let currentLine = '';
@@ -47,7 +47,7 @@ function PNGKitchenCancel(randomUuid, receipt_JSON, selectedTable, currentDate, 
     }
 
     // drawDashedLine will draw you a line (dotted or solid)
-    function drawDashedLine(pattern, startx = 10, endx = 300, height = y) {
+    function drawDashedLine(pattern, startx = 10, endx = width, height = y) {
         context.beginPath();
         context.setLineDash(pattern);
         context.moveTo(startx, height);
@@ -139,8 +139,8 @@ function PNGKitchenCancel(randomUuid, receipt_JSON, selectedTable, currentDate, 
         }
         let text = name + " " + x
         //let text = x
-        if (calculateTotalLines('20pt Sans', text, 300) != 1) {
-            lines += 1 + 0.5 * (calculateTotalLines('20pt Sans', text, 300));
+        if (calculateTotalLines('20pt Sans', text, width) != 1) {
+            lines += 1 + 0.5 * (calculateTotalLines('20pt Sans', text, width));
         } else {
             lines += 1;
         }

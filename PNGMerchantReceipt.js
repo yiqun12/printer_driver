@@ -22,7 +22,7 @@ function calculateTotalLines(font, text, maxWidth) {
     const canvas = createCanvas(400, 200);
     const context = canvas.getContext('2d');
 
-    context.font = '15pt Sans';
+    context.font = font;
 
     let chars = text.split(''); // Split the text into characters
     let currentLine = '';
@@ -205,8 +205,8 @@ function PNGMerchantReceipt(randomUuid, receipt_JSON, selectedTable, discount, s
             }
         }
         let text = item.CHI + " " + x
-        if (calculateTotalLines('9pt Sans', text, 300) != 1) {
-            lines += 1 + calculateTotalLines('9pt Sans', text, 300);
+        if (calculateTotalLines('15pt Sans', text, width) != 1) {
+            lines += 1 + calculateTotalLines('15pt Sans', text, width);
         } else {
             lines += 2;
         }
