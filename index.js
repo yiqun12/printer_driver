@@ -53,7 +53,7 @@ const front_productId = 0x0202
 const back_networkIp = false
 const front_networkIp = false
 const kiosk = false
-const BilanguageMode = false
+const BilanguageMode = true
 const label_vendorId = 0x04f9 //for ur brother label printer
 const label_productId = 0x209D
 
@@ -90,9 +90,9 @@ function formatPhoneNumber(phoneNumber) {
 }
 // Listener function to react to changes in printQueue
 queueEmitter.on('updated', (updatedQueue) => {
-    //console.log('Queue updated:', updatedQueue);
+    console.log('Queue updated:', updatedQueue);
     updatedQueue.forEach(item => {
-        //console.log(updatedQueue.length)
+        console.log(updatedQueue.length)
         if (updatedQueue.length === 1) {
             //console.log(item.vendorId)
             //console.log(item.productId)
@@ -103,9 +103,9 @@ queueEmitter.on('updated', (updatedQueue) => {
     // Perform any additional actions needed when the queue updates
 });
 printerEmitter.on('deleted', (fileName, queue) => {
-    //console.log(`Item with filename ${fileName} was deleted from the queue.`);
-    //console.log(queue)
-    //console.log(queue.length)
+    console.log(`Item with filename ${fileName} is going to be deleted from the queue.`);
+    console.log(queue)
+    console.log(queue.length)
     if (queue.length !== 0) {
         //console.log(item.vendorId)
         //console.log(item.productId)
@@ -116,7 +116,7 @@ printerEmitter.on('deleted', (fileName, queue) => {
 });
 
 // Endpoint to accept data from the client
-app.post('/PNGMerchantReceipt', (req, res) => {
+app.post('/MerchantReceipt', (req, res) => {
     const data = req.body;
     console.log("MerchantReceipt")
     const randomUuid = uuidv4();

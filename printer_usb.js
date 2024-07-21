@@ -71,7 +71,7 @@ function printer_usb(hex1, hex2, fileName, queue, networkIp) {
                 // Remove an item with fileName
                 try {
                   fs.unlinkSync(fileName);
-                  console.log('File successfully deleted'+fileName);
+                  console.log('File successfully deleted' + fileName);
                 } catch (err) {
                   console.error("Error deleting file:", err);
                 }
@@ -85,6 +85,7 @@ function printer_usb(hex1, hex2, fileName, queue, networkIp) {
 
             })
             .catch(err => {
+
               reject(err);
               device.close();
             });
@@ -94,10 +95,15 @@ function printer_usb(hex1, hex2, fileName, queue, networkIp) {
     });
   } catch (err) {
     console.error("An error occurred in printer_usb:", err);
-
+    const index = queue.findIndex(item => item.fileName === fileName);
+    if (index !== -1) {//didnt find, go next
+      queue.splice(index, 1);
+    }
+    printerEmitter.emit('deleted', fileName, queue);
     if (device) device.close();
-    reject(err);
+    //reject(err);
 
+    //printerEmitter.emit('deleted', fileName, queue);
   }
   //printer end
 }

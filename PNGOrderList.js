@@ -163,15 +163,10 @@ function PNGOrderList(randomUuid, receipt_JSON, selectedTable, discount, service
     // let products = JSON.parse(`[{"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46","name":"Kung Pao Chicken","subtotal":"1","image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666","quantity":4,"attributeSelected":{"size":["big"]},"count":"ec842841-afeb-4f42-93f7-0d2b5ae2dc9b","itemTotalPrice":8}]`)
     let products = JSON.parse(receipt_JSON)
 
-    // console.log(products)
 
     const newItems = products.map(item => {
         return { name: item.name, CHI: item.CHI, quantity: item.quantity, subtotal: item.subtotal, item_Total: parseFloat(item.itemTotalPrice), item_attributes: item?.attributeSelected }
     });
-
-    // const total_price = products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0);
-    // console.log(total_price)
-    // console.log(newItems);
 
     const product = newItems
 
@@ -188,23 +183,19 @@ function PNGOrderList(randomUuid, receipt_JSON, selectedTable, discount, service
 
         for (let key in item.item_attributes) {
             const value = item.item_attributes[key];
-            // console.log(value)
             // Check if the value is an array
             if (Array.isArray(value)) {
                 value.forEach(item => {
-                    // console.log(item)
                     x += item + " ";
                 });
             }
             // Check if the value is an object (but not an array)
             else if (typeof value === 'object' && value !== null) {
                 for (let subkey in value) {
-                    // console.log(value[subkey]);
                     x += value[subkey] + " ";
                 }
             }
             else {
-                // console.log(value);
                 x += value + " ";
             }
         }
@@ -304,27 +295,22 @@ function PNGOrderList(randomUuid, receipt_JSON, selectedTable, discount, service
 
         for (let key in item.item_attributes) {
             const value = item.item_attributes[key];
-            // console.log(value)
             // Check if the value is an array
             if (Array.isArray(value)) {
                 value.forEach(item => {
-                    // console.log(item)
                     x += item + " ";
                 });
             }
             // Check if the value is an object (but not an array)
             else if (typeof value === 'object' && value !== null) {
                 for (let subkey in value) {
-                    // console.log(value[subkey]);
                     x += value[subkey] + " ";
                 }
             }
             else {
-                // console.log(value);
                 x += value + " ";
             }
         }
-        // console.log(x)
         //Adjust the loop to concatenate characters until the line width exceeds the limit.
         let attributesChar = CHI + " " + x
         let chars = attributesChar.split(''); // Split the text into characters
