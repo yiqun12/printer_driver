@@ -144,12 +144,34 @@ function PNGOrderList(randomUuid, receipt_JSON, selectedTable, discount, service
     // // for ripping
     // lines += 2
 
+    // // const product =newItems
+    // const product = [{
+    //     name: "eel clay pot",
+    //     quantity: 2,
+    //     subtotal: 20.00,
+    //     item_Total: 40.00,
+    //     // chinese: "煎饼"
+    // },
+    // {
+    //     name: "egg fried rice",
+    //     quantity: 3,
+    //     subtotal: 30.00,
+    //     item_Total: 90.00,
+    //     // chinese: "麻婆豆腐"
+    // }];
 
+    // let products = JSON.parse(`[{"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46","name":"Kung Pao Chicken","subtotal":"1","image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666","quantity":4,"attributeSelected":{"size":["big"]},"count":"ec842841-afeb-4f42-93f7-0d2b5ae2dc9b","itemTotalPrice":8}]`)
     let products = JSON.parse(receipt_JSON)
+
+    // console.log(products)
 
     const newItems = products.map(item => {
         return { name: item.name, CHI: item.CHI, quantity: item.quantity, subtotal: item.subtotal, item_Total: parseFloat(item.itemTotalPrice), item_attributes: item?.attributeSelected }
     });
+
+    // const total_price = products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0);
+    // console.log(total_price)
+    // console.log(newItems);
 
     const product = newItems
 
@@ -446,6 +468,7 @@ function PNGOrderList(randomUuid, receipt_JSON, selectedTable, discount, service
 
 }
 
+// reciptNode_print_order_list(`[{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919","name":"Rib Eye Steak", "CHI":"大欢喜", "subtotal":1,"image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500","quantity":5,"attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},"count":"9224d939-2223-4820-b802-f61ddd9b2879","itemTotalPrice":90},{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919","name":"Rib Eye Steak", "CHI":"大欢喜", "subtotal":1,"image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500","quantity":5,"attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},"count":"9224d939-2223-4820-b802-f61ddd9b2879","itemTotalPrice":90},{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919","name":"Rib Eye Steak", "CHI":"大欢喜", "subtotal":1,"image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500","quantity":5,"attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},"count":"9224d939-2223-4820-b802-f61ddd9b2879","itemTotalPrice":90},{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919","name":"Rib Eye Steak", "CHI":"大欢喜", "subtotal":1,"image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500","quantity":5,"attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},"count":"9224d939-2223-4820-b802-f61ddd9b2879","itemTotalPrice":90},{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919","name":"Rib Eye Steak", "CHI":"大欢喜", "subtotal":1,"image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500","quantity":5,"attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},"count":"9224d939-2223-4820-b802-f61ddd9b2879","itemTotalPrice":90}, {"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919","name":"Rib Eye Steak", "CHI":"大欢喜", "subtotal":1,"image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500","quantity":5,"attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},"count":"9224d939-2223-4820-b802-f61ddd9b2879","itemTotalPrice":90}, {"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919","name":"Rib Eye Steak", "CHI":"大欢喜", "subtotal":1,"image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500","quantity":5,"attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},"count":"9224d939-2223-4820-b802-f61ddd9b2879","itemTotalPrice":90}]`, "A2", 0, 0, 0)
 
 module.exports = {
     PNGOrderList: PNGOrderList

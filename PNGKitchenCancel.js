@@ -21,7 +21,7 @@ function PNGKitchenCancel(randomUuid, receipt_JSON, selectedTable, currentDate, 
         const canvas = createCanvas(400, 200);
         const context = canvas.getContext('2d');
 
-        context.font = '15pt Sans';
+        context.font = '20pt Sans';
 
         let chars = text.split(''); // Split the text into characters
         let currentLine = '';
@@ -89,11 +89,15 @@ function PNGKitchenCancel(randomUuid, receipt_JSON, selectedTable, currentDate, 
     // let products = JSON.parse(`[{"id":"8d2579fc-bd3a-4df0-bde5-8884bcbd2919","name":"Rib Eye Steak","subtotal":1,"image":"https://img2.baidu.com/it/u=3430421176,2577786938&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500","quantity":5,"attributeSelected":{"Weight":["18 oz","20oz"],"size":"bg"},"count":"9224d939-2223-4820-b802-f61ddd9b2879","itemTotalPrice":90},{"id":"3f3b415b-88cd-4f5b-8683-591fa3391d46","name":"Kung Pao Chicken","subtotal":"1","image":"https://img1.baidu.com/it/u=1772848420,3755938574&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=666","quantity":4,"attributeSelected":{"size":["big"]},"count":"81e85da6-c0b4-47e8-aa6a-4ee34fc6be6f","itemTotalPrice":8}]`)
     let products = JSON.parse(receipt_JSON)
 
+    console.log(products)
 
     const newItems = products.map(item => {
         return { name: item.name, CHI: item.CHI, quantity: item.quantity, subtotal: item.subtotal, item_Total: item.itemTotalPrice, item_attributes: item?.attributeSelected }
     });
 
+    // const total_price = products.reduce((acc, product) => acc + (product.quantity * product.subtotal), 0);
+    // console.log(total_price)
+    console.log(newItems);
 
     const width = 285;
     let y = 20;
@@ -123,26 +127,30 @@ function PNGKitchenCancel(randomUuid, receipt_JSON, selectedTable, currentDate, 
 
         for (let key in item.item_attributes) {
             const value = item.item_attributes[key];
+            // console.log(value)
             // Check if the value is an array
             if (Array.isArray(value)) {
                 value.forEach(item => {
+                    // console.log(item)
                     x += item + " ";
                 });
             }
             // Check if the value is an object (but not an array)
             else if (typeof value === 'object' && value !== null) {
                 for (let subkey in value) {
+                    // console.log(value[subkey]);
                     x += value[subkey] + " ";
                 }
             }
             else {
+                // console.log(value);
                 x += value + " ";
             }
         }
         let text = name + " " + x
         //let text = x
-        if (calculateTotalLines('15pt Sans', text, 300) != 1) {
-            lines += 1 + 0.5 * (calculateTotalLines('15pt Sans', text, 300));
+        if (calculateTotalLines('20pt Sans', text, 300) != 1) {
+            lines += 1 + 0.5 * (calculateTotalLines('20pt Sans', text, 300));
         } else {
             lines += 1;
         }
@@ -202,7 +210,7 @@ function PNGKitchenCancel(randomUuid, receipt_JSON, selectedTable, currentDate, 
 
         // Check if there are attributes
         // change fonts to smaller font
-        context.font = '15pt Sans'
+        context.font = '20pt Sans'
 
         // attributes string
         let x = ""
