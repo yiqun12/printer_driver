@@ -207,7 +207,11 @@ app.post('/SendToKitchen', (req, res) => {
         printQueue.push({
             vendorId: back_vendorID, productId: back_productId, fileName: picname3, networkIp: back_networkIp
         });//back desk
-
+        const randomUuid4 = uuidv4();
+        const picname4 = PNGKitchenPlace(randomUuid4, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
+        printQueue.push({
+            vendorId: back_vendorID, productId: back_productId, fileName: picname4, networkIp: back_networkIp
+        });//back desk
     }
     res.send({ success: true, message: "Data received successfully" });
 });
@@ -388,7 +392,7 @@ app.listen(3001, () => {
             arguments: [
                 '--no-sandbox',
                 '--kiosk',
-                '--force-device-scale-factor=1.0' // Adjusts zoom level to 150%
+                '--force-device-scale-factor=1.75' // Adjusts zoom level to 150%
             ]
         }
     })
