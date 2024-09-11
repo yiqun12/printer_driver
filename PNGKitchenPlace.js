@@ -147,7 +147,7 @@ function PNGKitchenPlace(randomUuid, receipt_JSON, selectedTable, currentDate, B
         total += item.item_Total;
     });
 
-    const canvas = createCanvas(width, lines * lineHeight + 20)
+    const canvas = createCanvas(width, lines * lineHeight + 80)
     const context = canvas.getContext('2d')
 
     context.fillStyle = '#fff'
@@ -263,7 +263,6 @@ function PNGKitchenPlace(randomUuid, receipt_JSON, selectedTable, currentDate, B
         y += 0.5 * lineHeight;
         context.font = '20pt Sans'
     })
-
 
 
     const height = canvas.height

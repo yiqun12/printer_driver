@@ -148,7 +148,7 @@ function PNGKitchenCancel(randomUuid, receipt_JSON, selectedTable, currentDate, 
         total += item.item_Total;
     });
 
-    const canvas = createCanvas(width, lines * lineHeight + 20)
+    const canvas = createCanvas(width, lines * lineHeight + 80)
     const context = canvas.getContext('2d')
 
     context.fillStyle = '#fff'
