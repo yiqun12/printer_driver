@@ -45,10 +45,10 @@ const { v4: uuidv4 } = require('uuid');
 var Ptouch = require('node-ptouch');
 var usb = require('usb');
 //To Do: 以下几个变量可以变成dynamic
-const back_vendorID = 0x04B8
-const back_productId = 0x0E20
-const front_vendorID = 0x04B8
-const front_productId = 0x0202
+const back_vendorID = 0x0416
+const back_productId = 0x5011
+const front_vendorID = 0x0416
+const front_productId = 0x5011
 
 const back_networkIp = false
 const front_networkIp = false
@@ -202,16 +202,11 @@ app.post('/SendToKitchen', (req, res) => {
             vendorId: front_vendorID, productId: front_productId, fileName: picname2, networkIp: front_networkIp
         });//back desk
         //enable this if you need a extra print in the backend
-        const randomUuid3 = uuidv4();
-        const picname3 = PNGKitchenPlace(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
-        printQueue.push({
-            vendorId: back_vendorID, productId: back_productId, fileName: picname3, networkIp: back_networkIp
-        });//back desk
-        const randomUuid4 = uuidv4();
-        const picname4 = PNGKitchenPlace(randomUuid4, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
-        printQueue.push({
-            vendorId: back_vendorID, productId: back_productId, fileName: picname4, networkIp: back_networkIp
-        });//back desk
+        // const randomUuid3 = uuidv4();
+        // const picname3 = PNGKitchenPlace(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
+        // printQueue.push({
+        //     vendorId: back_vendorID, productId: back_productId, fileName: picname3, networkIp: back_networkIp
+        // });//back desk
     }
     res.send({ success: true, message: "Data received successfully" });
 });

@@ -17,7 +17,7 @@ const { createCanvas, loadImage } = require('canvas')
 function PNGKitchenCancel(randomUuid, receipt_JSON, selectedTable, currentDate, BilanguageMode) {
     function calculateTotalLines(font, text, maxWidth) {
         // Create a canvas to measure text width
-        const canvas = createCanvas(400, 200);
+        const canvas = createCanvas(400, maxWidth);
         const context = canvas.getContext('2d');
 
         context.font = font;

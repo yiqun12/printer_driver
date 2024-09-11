@@ -19,7 +19,7 @@ function toFixTwo(n) {
 }
 function calculateTotalLines(font, text, maxWidth) {
     // Create a canvas to measure text width
-    const canvas = createCanvas(400, 200);
+    const canvas = createCanvas(400, maxWidth);
     const context = canvas.getContext('2d');
 
     context.font = font;
@@ -205,8 +205,8 @@ function PNGMerchantReceipt(randomUuid, receipt_JSON, selectedTable, discount, s
             }
         }
         let text = item.CHI + " " + x
-        if (calculateTotalLines('15pt Sans', text, width) != 1) {
-            lines += 1 + calculateTotalLines('15pt Sans', text, width);
+        if (calculateTotalLines('15pt Sans', text, horrizontal_max_right) != 1) {
+            lines += 1 + calculateTotalLines('15pt Sans', text, horrizontal_max_right);
         } else {
             lines += 2;
         }
@@ -345,7 +345,7 @@ function PNGMerchantReceipt(randomUuid, receipt_JSON, selectedTable, discount, s
             let testLine = currentLine + char;
             let testWidth = context.measureText(testLine).width;
 
-            if (testWidth > width && currentLine.length > 0) {
+            if (testWidth > horrizontal_max_right && currentLine.length > 0) {
                 lines.push(currentLine);
                 currentLine = char;
             } else {
@@ -465,9 +465,9 @@ function PNGMerchantReceipt(randomUuid, receipt_JSON, selectedTable, discount, s
     // tips section
     context.textAlign = 'center';
     context.fillText(`Add Additional Tips`, horrizontal_max_right / 2, y)
-    context.fillText(`⬜ 10%: $${toFixTwo(subtotal * .10)} Total: $${toFixTwo(total + subtotal * .10)}`, horrizontal_max_right / 2, y + lineHeight);
-    context.fillText(`⬜ 15%: $${toFixTwo(subtotal * .15)} Total: $${toFixTwo(total + subtotal * .15)}`, horrizontal_max_right / 2, y + lineHeight * 2);
-    context.fillText(`⬜ 18%: $${toFixTwo(subtotal * .18)} Total: $${toFixTwo(total + subtotal * .18)}`, horrizontal_max_right / 2, y + lineHeight * 3);
+    context.fillText(`⬜ 15%: $${toFixTwo(subtotal * .10)} Total: $${toFixTwo(total + subtotal * .15)}`, horrizontal_max_right / 2, y + lineHeight);
+    context.fillText(`⬜ 18%: $${toFixTwo(subtotal * .15)} Total: $${toFixTwo(total + subtotal * .18)}`, horrizontal_max_right / 2, y + lineHeight * 2);
+    context.fillText(`⬜ 20%: $${toFixTwo(subtotal * .18)} Total: $${toFixTwo(total + subtotal * .20)}`, horrizontal_max_right / 2, y + lineHeight * 3);
     context.fillText(`⬜ Custom: $________ Total: $________`, horrizontal_max_right / 2, y + lineHeight * 4);
 
     context.fillText(`POWERED BY EATIFYDASH.COM`, horrizontal_max_right / 2, y + lineHeight * 5);
