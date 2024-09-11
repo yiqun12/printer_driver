@@ -214,71 +214,94 @@ app.post('/SendToKitchen', (req, res) => {
 
 app.post('/PrintQRcode', (req, res) => {
     const data = req.body;
-    console.log("PrintQRcode")
+    console.log("PrintQRcode");
+
     const ensureFolderExists = (folderPath) => {
         if (!fs.existsSync(folderPath)) {
             fs.mkdirSync(folderPath);
         }
     };
-    // Create 'qrcode' folder
+
     const qrcodeFolder = path.join(__dirname, 'qrcode');
     ensureFolderExists(qrcodeFolder);
+
     data.forEach((item, index) => {
         const tableParam = item.split('-');
         const prefix = tableParam[0];
         const suffix = tableParam[1];
         const url = `https://eatifydash.com/store?store=${prefix}&table=${suffix}`;
-        const outputFilePath = path.join(qrcodeFolder, `qrcode-${index}.png`);
+        const outputFilePath = path.join(qrcodeFolder, `sample-qrcode-${index}.png`);
         const options = {
             width: 720,
             height: 720,
+            textHeight: 100,
+            sampleHeight: 870, // sample.png height (720px) + 150px extra height
         };
-    
+
         const qrSvg = QRCode.image(url, { type: 'png', size: options.width / 10 });
         const qrPngBuffer = [];
-    
+
         qrSvg.on('data', chunk => qrPngBuffer.push(chunk));
         qrSvg.on('end', async () => {
             const qrBuffer = Buffer.concat(qrPngBuffer);
-    
-            // Create an image with QR code and suffix text
+
             const qrImage = sharp(qrBuffer)
-                .resize(options.width, options.height)
-                .extend({
-                    top: 0,
-                    bottom: 100, // Add extra space at the bottom for the text
-                    background: { r: 255, g: 255, b: 255, alpha: 0 }
-                });
-    
+                .resize(options.width, options.height);
+
             const textImage = sharp({
                 create: {
                     width: options.width,
-                    height: 100,
+                    height: options.textHeight,
                     channels: 4,
                     background: { r: 255, g: 255, b: 255, alpha: 1 }
                 }
             })
             .composite([{
-                input: Buffer.from(`<svg width="${options.width}" height="100">
+                input: Buffer.from(`<svg width="${options.width}" height="${options.textHeight}">
                     <text x="50%" y="50%" font-size="40" text-anchor="middle" fill="black">${suffix}</text>
                 </svg>`),
                 top: 0,
                 left: 0
             }]);
-    
-            const finalImage = await qrImage.composite([{ input: await textImage.png().toBuffer(), top: options.height, left: 0 }]).png().toBuffer();
-    
-            // Save the final image
+
+            const combinedQrImage = await qrImage
+                .extend({
+                    top: 0,
+                    bottom: options.textHeight,
+                    background: { r: 255, g: 255, b: 255, alpha: 0 }
+                })
+                .composite([{ input: await textImage.png().toBuffer(), top: options.height, left: 0 }])
+                .toBuffer();
+
+            const sampleImagePath = path.join(__dirname, 'sample.png');
+            const sampleImage = sharp(sampleImagePath)
+                .resize(options.width, options.sampleHeight);
+
+            const finalImage = await sharp({
+                create: {
+                    width: options.width,
+                    height: options.sampleHeight + options.height + options.textHeight,
+                    channels: 4,
+                    background: { r: 255, g: 255, b: 255, alpha: 1 }
+                }
+            })
+            .composite([
+                { input: await sampleImage.png().toBuffer(), top: 0, left: 0 },
+                { input: combinedQrImage, top: options.sampleHeight, left: 0 }
+            ])
+            .png()
+            .toBuffer();
+
             await sharp(finalImage).toFile(outputFilePath);
-    
-            console.log('QR code generated and saved to', outputFilePath);
-    
+
+            console.log('Sample image and QR code combined and saved to', outputFilePath);
+
             // Assuming printPngFile is a function defined elsewhere in your code
             printPngFile({
                 vendorId: label_vendorId,
                 productId: label_productId,
                 filename: outputFilePath,
-                options: { landscape: false, labelWidth: "62-mm-wide continuous" }, // or "102-mm-wide continuous"
+                options: { landscape: false, labelWidth: "62-mm-wide continuous" },
                 compression: { enable: true }
             });
         });

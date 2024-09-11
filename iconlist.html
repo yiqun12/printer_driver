@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Instructions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f8f8f8;
+        }
+        .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .step {
+            text-align: center;
+            margin: 0 20px;
+        }
+        .step i {
+            font-size: 60px;
+            color: #333;
+        }
+        .step p {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #333;
+            line-height: 1.2;
+        }
+        .or {
+            width: 80px;
+            height: 80px;
+            background-color:#fff;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform: rotate(45deg);
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 20px;
+        }
+        .or span {
+            transform: rotate(-45deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="step">
+            <i class="fas fa-camera"></i>
+            <p>扫码NFC点餐和支付</p>
+        </div>
+        <div class="step">
+            <i class="fas fa-wifi"></i>
+            <p>Visit Eatifydash.com</p>
+        </div>
+        <div class="or">
+            <span>OR</span>
+        </div>
+        <div class="step">
+            <i class="fas fa-credit-card"></i>
+            <p>MAKE THE<br>PAYMENT</p>
+        </div>
+    </div>
+</body>
+</html>
