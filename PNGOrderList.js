@@ -211,7 +211,7 @@ function PNGOrderList(randomUuid, receipt_JSON, selectedTable, discount, service
 
     })
     // lines += 1; 
-
+    console.log(lines * lineHeight)
     const canvas = createCanvas(width, lines * lineHeight)
     const context = canvas.getContext('2d')
 
@@ -443,7 +443,7 @@ function PNGOrderList(randomUuid, receipt_JSON, selectedTable, discount, service
     // context.fillText(`POWERED BY EATIFYDASH`, horrizontal_max_right / 2, y + lineHeight*4);
     // y += lineHeight* 4
 
-
+    console.log(y)
 
     const height = canvas.height
     const buffer = canvas.toBuffer('image/png')

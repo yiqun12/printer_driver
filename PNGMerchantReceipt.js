@@ -205,15 +205,16 @@ function PNGMerchantReceipt(randomUuid, receipt_JSON, selectedTable, discount, s
             }
         }
         let text = item.CHI + " " + x
-        if (calculateTotalLines('15pt Sans', text, horrizontal_max_right) != 1) {
-            lines += 1 + calculateTotalLines('15pt Sans', text, horrizontal_max_right);
+        if (calculateTotalLines('9pt Sans', text, horrizontal_max_right) != 1) {
+            lines += 1 + calculateTotalLines('9pt Sans', text, horrizontal_max_right);
         } else {
             lines += 2;
         }
         subtotal += item.item_Total;
     })
+    console.log(lines * lineHeight)
     // lines += 1;
-    const canvas = createCanvas(width, lines * lineHeight)
+    const canvas = createCanvas(width, lines * lineHeight+20)
     const context = canvas.getContext('2d')
 
     context.fillStyle = '#fff'
@@ -472,7 +473,7 @@ function PNGMerchantReceipt(randomUuid, receipt_JSON, selectedTable, discount, s
 
     context.fillText(`POWERED BY EATIFYDASH.COM`, horrizontal_max_right / 2, y + lineHeight * 5);
     y += lineHeight * 6
-
+    console.log(y)
 
     const height = canvas.height
     const buffer = canvas.toBuffer('image/png')

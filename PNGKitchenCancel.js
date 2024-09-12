@@ -111,6 +111,7 @@ function PNGKitchenCancel(randomUuid, receipt_JSON, selectedTable, currentDate, 
 
     // add a line for ripping
     lines += 1;
+    let extra_line = 0
 
     const product = newItems
     //const user = {name:change.doc.data().charges.data[0].billing_details.name}
@@ -137,10 +138,12 @@ function PNGKitchenCancel(randomUuid, receipt_JSON, selectedTable, currentDate, 
                 x += value + " ";
             }
         }
-        let text = name + " " + x
+        let text = item.quantity + " X " + name + " " + x
         //let text = x
         if (calculateTotalLines('20pt Sans', text, width) != 1) {
             lines += 1 + 0.5 * (calculateTotalLines('20pt Sans', text, width));
+            extra_line += 1
+
         } else {
             lines += 1;
         }
@@ -148,11 +151,11 @@ function PNGKitchenCancel(randomUuid, receipt_JSON, selectedTable, currentDate, 
         total += item.item_Total;
     });
 
-    const canvas = createCanvas(width, lines * lineHeight + 80)
+    const canvas = createCanvas(width, lines * lineHeight - 20 * extra_line + 40 )
     const context = canvas.getContext('2d')
 
     context.fillStyle = '#fff'
-    context.fillRect(0, 0, width, lines * lineHeight + 20)
+    context.fillRect(0, 0, width, lines * lineHeight - 20 * extra_line + 40)
 
     context.font = '20pt Sans'
     context.textAlign = 'left'

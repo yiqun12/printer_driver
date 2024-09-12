@@ -113,6 +113,7 @@ function PNGKitchenPlace(randomUuid, receipt_JSON, selectedTable, currentDate, B
     lines += 1;
 
     const product = newItems
+    let extra_line = 0
     //const user = {name:change.doc.data().charges.data[0].billing_details.name}
     product.forEach(item => {
         let name = BilanguageMode ? item.CHI : item.name
@@ -138,20 +139,23 @@ function PNGKitchenPlace(randomUuid, receipt_JSON, selectedTable, currentDate, B
                 x += value + " ";
             }
         }
-        let text = name + " " + x
+        let text = item.quantity + " X " + name + " " + x
         if (calculateTotalLines('20pt Sans', text, width) != 1) {
             lines += 1 + 0.5 * (calculateTotalLines('20pt Sans', text, width));
+            extra_line += 1
         } else {
             lines += 1;
+            //console.log("no")
+            //extra_line += 1;
         }
         total += item.item_Total;
     });
-
-    const canvas = createCanvas(width, lines * lineHeight + 80)
+    console.log(extra_line, y, lines * lineHeight - 20 * extra_line + 40)
+    const canvas = createCanvas(width, lines * lineHeight - 20 * extra_line + 40)
     const context = canvas.getContext('2d')
 
     context.fillStyle = '#fff'
-    context.fillRect(0, 0, width, lines * lineHeight + 20)
+    context.fillRect(0, 0, width, lines * lineHeight - 20 * extra_line + 40)
 
     context.font = '20pt Sans'
     context.textAlign = 'left'
@@ -263,7 +267,7 @@ function PNGKitchenPlace(randomUuid, receipt_JSON, selectedTable, currentDate, B
         y += 0.5 * lineHeight;
         context.font = '20pt Sans'
     })
-
+    console.log(y)
 
     const height = canvas.height
     const buffer = canvas.toBuffer('image/png')

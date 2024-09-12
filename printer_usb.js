@@ -65,7 +65,7 @@ function printer_usb(hex1, hex2, fileName, queue, networkIp) {
             .size(2, 2)
             .image(image, 's8')
             .then(() => {
-              printer.beep(3, 2);
+              //printer.beep(3, 2);
               printer.cut('PARTIAL').close(() => resolve());
               setTimeout(function () {
                 // Assuming 'queue' is the array containing your print jobs
