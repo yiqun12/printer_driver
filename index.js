@@ -45,8 +45,8 @@ const { v4: uuidv4 } = require('uuid');
 var Ptouch = require('node-ptouch');
 var usb = require('usb');
 //To Do: 以下几个变量可以变成dynamic
-const back_vendorID = 0x0416
-const back_productId = 0x5011
+const back_vendorID = 0x04B8
+const back_productId = 0x0202
 const front_vendorID = 0x0416
 const front_productId = 0x5011
 
@@ -410,7 +410,7 @@ app.listen(3001, () => {
             arguments: [
                 '--no-sandbox',
                 '--kiosk',
-                '--force-device-scale-factor=1.75' // Adjusts zoom level to 150%
+                '--force-device-scale-factor=1.00' // Adjusts zoom level to 150%
             ]
         }
     })

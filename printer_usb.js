@@ -87,8 +87,8 @@ function printer_usb(hex1, hex2, fileName, queue, networkIp) {
             })
             .catch(err => {
 
-              reject(err);
-              device.close();
+              //reject(err);
+              if (device) device.close();
             });
         });
 

@@ -53,7 +53,7 @@ function bankReceipt(randomUuid, receipt_JSON, selectedTable, restaurant_name_CH
     let meal_option = "DINE-IN"
 
     // lines += 1;
-    const canvas = createCanvas(width, lines * lineHeight)
+    const canvas = createCanvas(width, lines * lineHeight+40)
     const context = canvas.getContext('2d')
 
     context.fillStyle = '#fff'
