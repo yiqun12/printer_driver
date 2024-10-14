@@ -471,7 +471,7 @@ function PNGMerchantReceipt(randomUuid, receipt_JSON, selectedTable, discount, s
     context.fillText(`⬜ 20%: $${toFixTwo(subtotal * .18)} Total: $${toFixTwo(total + subtotal * .20)}`, horrizontal_max_right / 2, y + lineHeight * 3);
     context.fillText(`⬜ Custom: $________ Total: $________`, horrizontal_max_right / 2, y + lineHeight * 4);
 
-    context.fillText(`POWERED BY EATIFYDASH.COM`, horrizontal_max_right / 2, y + lineHeight * 5);
+    context.fillText(`POWERED BY 7dollar.delivery`, horrizontal_max_right / 2, y + lineHeight * 5);
     y += lineHeight * 6
     console.log(y)
 

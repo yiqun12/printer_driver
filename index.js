@@ -228,7 +228,7 @@ app.post('/PrintQRcode', (req, res) => {
         const tableParam = item.split('-');
         const prefix = tableParam[0];
         const suffix = tableParam[1];
-        const url = `https://eatifydash.com/store?store=${prefix}&table=${suffix}`;
+        const url = `https://7dollar.delivery/store?store=${prefix}&table=${suffix}`;
         const outputFilePath = path.join(qrcodeFolder, `sample-qrcode-${index}.png`);
         const options = {
             width: 720,
