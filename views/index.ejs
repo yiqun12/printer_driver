@@ -1,4 +1,4 @@
-<!-- Copyright 2024 Eatifydash
+<!-- 
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -36,7 +36,10 @@ limitations under the License. -->
 
         window.addEventListener('message', (event) => {
             // Make sure to check the origin of the message for security purposes
-            if (event.origin !== "http://localhost:3000" && event.origin !== "https://eatify-22231.web.app") {
+            if (event.origin !== "http://localhost:3000" && event.origin !== "https://eatify-22231.web.app"
+                && event.origin !== "https://7dollar.delivery" && event.origin !== "https://eatifydash.com"
+                && event.origin !== "https://yumcha.app"
+            ) {
                 return; // Ignore messages from unknown origins
             }
             if (event.data.type === 'listOrder') {

@@ -1,4 +1,3 @@
-// Copyright 2024 Eatifydash
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,10 +46,10 @@ var usb = require('usb');
 //To Do: 以下几个变量可以变成dynamic
 const back_vendorID = 0x04B8
 const back_productId = 0x0E20
-const front_vendorID = 0x0416
-const front_productId = 0x5011
+const front_vendorID = 0x04B8
+const front_productId = 0x0202
 
-const back_networkIp = false
+const back_networkIp = "192.168.1.100"
 const front_networkIp = false
 const kiosk = false
 const BilanguageMode = true
@@ -234,7 +233,7 @@ app.post('/PrintQRcode', (req, res) => {
         const tableParam = item.split('-');
         const prefix = tableParam[0];
         const suffix = tableParam[1];
-        const url = `https://eatifydash.com/store?store=${prefix}&table=${suffix}`;
+        const url = `https://7dollar.delivery/store?store=${prefix}&table=${suffix}`;
         const outputFilePath = path.join(qrcodeFolder, `sample-qrcode-${index}.png`);
         const options = {
             width: 720,
@@ -391,7 +390,7 @@ app.post('/OpenCashDraw', (req, res) => {
 app.listen(3001, () => {
     console.log('Server is running on http://localhost:3001');
     if (kiosk) {
-        open('https://eatify-22231.web.app/account', {
+        open('https://7dollar.delivery/account', {
             app: {
                 name: open.apps.edge,
                 arguments: [
@@ -410,7 +409,7 @@ app.listen(3001, () => {
     }
 
 
-    open('https://eatify-22231.web.app/account#code?store=bubbleshop', {
+    open('https://7dollar.delivery/account#code?store=bubbleshop', {
         app: {
             name: open.apps.chrome,
             arguments: [

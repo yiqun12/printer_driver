@@ -1,4 +1,3 @@
-// Copyright 2024 Eatifydash
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -122,7 +121,7 @@ function bankReceipt(randomUuid, receipt_JSON, selectedTable, restaurant_name_CH
     myDrawTextOnCanvas.drawText('FB:', receipt_JSON.docId);
     
     myDrawTextOnCanvas.drawText('', '', 'center');
-    myDrawTextOnCanvas.drawText('POWERED BY EATIFYDASH', '', 'center');
+    myDrawTextOnCanvas.drawText('POWERED BY 7DOLLAR.DELIVERY', '', 'center');
     const height = canvas.height
     const buffer = canvas.toBuffer('image/png')
     //fs.writeFileSync('./merchant.png', buffer)
