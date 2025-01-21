@@ -12,7 +12,7 @@ if %errorlevel% neq 0 (
 )
 call npm install
 
-call npm install -g nodemon
+call npm install -g node
 echo Stopping any Node.js application on port 3001...
 for /f "tokens=5" %%a in ('netstat -aon ^| find "LISTENING" ^| find ":3001"') do (
     taskkill /F /PID %%a
@@ -21,5 +21,5 @@ echo Any existing Node.js application on port 3001 has been stopped.
 
 rem Start your node application
 cd %~dp0
-start "" nodemon index.js
+start "" node index.js
 

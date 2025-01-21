@@ -230,10 +230,12 @@ app.post('/PrintQRcode', (req, res) => {
     ensureFolderExists(qrcodeFolder);
 
     data.forEach((item, index) => {
-        const tableParam = item.split('-');
-        const prefix = tableParam[0];
-        const suffix = tableParam[1];
-        const url = `https://7dollar.delivery/store?store=${prefix}&table=${suffix}`;
+        const [prefix, suffix] = [item.slice(0, item.lastIndexOf('-')), item.slice(item.lastIndexOf('-') + 1)];
+        // const tableParam = item.split('-');
+        // const prefix = tableParam[0];
+        // const suffix = tableParam[1];
+        console.log(suffix)
+        const url = `https://7dollar.delivery/store?store=${prefix}`;
         const outputFilePath = path.join(qrcodeFolder, `sample-qrcode-${index}.png`);
         const options = {
             width: 720,
