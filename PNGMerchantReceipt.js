@@ -465,9 +465,9 @@ function PNGMerchantReceipt(randomUuid, receipt_JSON, selectedTable, discount, s
     // tips section
     context.textAlign = 'center';
     context.fillText(`Add Additional Tips`, horrizontal_max_right / 2, y)
-    context.fillText(`⬜ 15%: $${toFixTwo(subtotal * .10)} Total: $${toFixTwo(total + subtotal * .15)}`, horrizontal_max_right / 2, y + lineHeight);
-    context.fillText(`⬜ 18%: $${toFixTwo(subtotal * .15)} Total: $${toFixTwo(total + subtotal * .18)}`, horrizontal_max_right / 2, y + lineHeight * 2);
-    context.fillText(`⬜ 20%: $${toFixTwo(subtotal * .18)} Total: $${toFixTwo(total + subtotal * .20)}`, horrizontal_max_right / 2, y + lineHeight * 3);
+    context.fillText(`⬜ 15%: $${toFixTwo(subtotal * .15)} Total: $${toFixTwo(total + subtotal * .15)}`, horrizontal_max_right / 2, y + lineHeight);
+    context.fillText(`⬜ 18%: $${toFixTwo(subtotal * .18)} Total: $${toFixTwo(total + subtotal * .18)}`, horrizontal_max_right / 2, y + lineHeight * 2);
+    context.fillText(`⬜ 20%: $${toFixTwo(subtotal * .20)} Total: $${toFixTwo(total + subtotal * .20)}`, horrizontal_max_right / 2, y + lineHeight * 3);
     context.fillText(`⬜ Custom: $________ Total: $________`, horrizontal_max_right / 2, y + lineHeight * 4);
 
     context.fillText(`POWERED BY 7dollar.delivery`, horrizontal_max_right / 2, y + lineHeight * 5);
