@@ -55,7 +55,6 @@ function PNGOrderList(randomUuid, receipt_JSON, selectedTable, discount, service
     // let total = 0;
     let lines = 0;
     const lineHeight = 30;
-    const taxRate = 0.0825;
 
     const horrizontal_max_right = 275;
 

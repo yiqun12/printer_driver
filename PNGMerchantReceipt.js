@@ -51,7 +51,10 @@ function PNGMerchantReceipt(randomUuid, receipt_JSON, selectedTable, discount, s
     restaurant_name,
     restaurant_address_1,
     restaurant_address_2,
-    restaurant_phone, receiptCopyMode) {
+    restaurant_phone, receiptCopyMode,
+    storeId,
+    TaxRate
+    ) {
 
     /**generate new png picture receipt */
     const width = 300
@@ -60,7 +63,7 @@ function PNGMerchantReceipt(randomUuid, receipt_JSON, selectedTable, discount, s
     // let total = 0;
     let lines = 0;
     const lineHeight = 15;
-    const taxRate = 0.0825;
+    const taxRate = 0.08625;
 
     const horrizontal_max_right = 255;
 
@@ -447,7 +450,10 @@ function PNGMerchantReceipt(randomUuid, receipt_JSON, selectedTable, discount, s
     y += lineHeight
 
     context.font = "bold 10pt Sans";
-
+    context.fillText(storeId, horrizontal_max_right / 2, y)
+    y += lineHeight * 1.5
+    context.fillText(TaxRate, horrizontal_max_right / 2, y)
+    y += lineHeight * 1.5
     context.fillText("SIGNATURE", horrizontal_max_right / 2, y)
     context.textAlign = 'left'
     y += lineHeight * 1.5

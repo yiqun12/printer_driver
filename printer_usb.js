@@ -28,45 +28,64 @@ const printerEmitter = new PrinterEmitter();
 
 function printer_usb(hex1, hex2, fileName, queue, networkIp) {
 
-  console.log(fileName)
   const sec = fileName.substring(36, fileName.length - 4);
   let device
   //const device  = new escpos.Network(networkIp);
   //const device = new escpos.USB(0x0FE6, 0x811E);
-
+  console.log("🖨️ Printing:", fileName);
   try {
     if (networkIp) {
-      console.log("networkIp")
+      console.log("🌐 Using network printer:", networkIp);
       device = new escpos.Network(networkIp);
 
     } else {
-      console.log("USB")
+      console.log("🔌 Using USB printer:", hex1, hex2);
       device = new escpos.USB(hex1, hex2);
     }
 
     // const device = new escpos.USB()
     const options = { encoding: "GB18030" }
 
+
     const printer = new escpos.Printer(device, options);
 
     // const tux = path.join(__dirname, 'tux.png');
     const tux = path.join(__dirname, fileName);
     //end of printer
-
+    // **设置 device.open() 超时**
+    let openTimedOut = false;
+    const openTimeoutId = setTimeout(() => {
+      console.error("⏳ Device open timeout! Skipping task...");
+      openTimedOut = true;
+      queue.shift(); // **移除当前任务**
+      printerEmitter.emit('deleted', fileName, queue);
+      if (device) device.close();
+    }, 2000); // **2秒超时**
 
     //printer start
-
     return new Promise((resolve, reject) => {
       escpos.Image.load(tux, function (image) {
+        console.log("⌛ Waiting for device.open()...");
+
         device.open(function () {
+          if (openTimedOut) {
+            console.warn("⚠️ Device opened after timeout, ignoring...");
+            return;
+          }
+          clearTimeout(openTimeoutId); // **成功打开设备，清除超时**
+
+          console.log("✅ Device opened successfully!");
           printer
             .align('ct')
             .size(2, 2)
             .image(image, 's8')
             .then(() => {
+              console.log("🖨️ Printing completed");
               //printer.beep(3, 2);
               printer.cut('PARTIAL').close(() => resolve());
               setTimeout(function () {
+                console.log("🗑️ Deleting file:", fileName);
+
                 // Assuming 'queue' is the array containing your print jobs
                 // Remove an item with fileName
                 try {
@@ -85,11 +104,15 @@ function printer_usb(hex1, hex2, fileName, queue, networkIp) {
 
             })
             .catch(err => {
-
-              //reject(err);
+              console.error("🚨 Printing error:", err);
+              clearTimeout(timeoutId); // **清除超时**
+              queue.shift(); // **移除当前任务**
+              printerEmitter.emit('deleted', fileName, queue);
               if (device) device.close();
             });
-        });
+        })
+
+          ;
 
       });
     });

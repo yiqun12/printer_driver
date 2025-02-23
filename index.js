@@ -91,7 +91,7 @@ function formatPhoneNumber(phoneNumber) {
 queueEmitter.on('updated', (updatedQueue) => {
     console.log('Queue updated:', updatedQueue);
     updatedQueue.forEach(item => {
-        console.log(updatedQueue.length)
+        console.log("pending:", updatedQueue.length)
         if (updatedQueue.length === 1) {
             //console.log(item.vendorId)
             //console.log(item.productId)
@@ -139,7 +139,9 @@ app.post('/MerchantReceipt', (req, res) => {
                 restaurant_address_1,
                 restaurant_address_2,
                 formatPhoneNumber(restaurant_phone),
-                "Merchant Copy"
+                "Merchant Copy",
+                req.body.storeId,
+                req.body.TaxRate,
             ), networkIp: front_networkIp
         });
     }
@@ -169,7 +171,9 @@ app.post('/CustomerReceipt', (req, res) => {
                 restaurant_address_1,
                 restaurant_address_2,
                 formatPhoneNumber(restaurant_phone),
-                "Customer Copy"
+                "Customer Copy",
+                req.body.storeId,
+                req.body.TaxRate,
             ), networkIp: front_networkIp
         });
     }
@@ -201,17 +205,17 @@ app.post('/SendToKitchen', (req, res) => {
             vendorId: front_vendorID, productId: front_productId, fileName: picname2, networkIp: front_networkIp
         });//back desk
         //enable this if you need a extra print in the backend
-         const randomUuid3 = uuidv4();
-         const picname3 = PNGKitchenPlace(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
-         printQueue.push({
-             vendorId: back_vendorID, productId: back_productId, fileName: picname3, networkIp: back_networkIp
-         });//back desk
+        const randomUuid3 = uuidv4();
+        const picname3 = PNGKitchenPlace(randomUuid3, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
+        printQueue.push({
+            vendorId: back_vendorID, productId: back_productId, fileName: picname3, networkIp: back_networkIp
+        });//back desk
         //enable this if you need a extra print in the backend
-         const randomUuid4 = uuidv4();
-         const picname4 = PNGKitchenPlace(randomUuid4, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
-         printQueue.push({
-             vendorId: back_vendorID, productId: back_productId, fileName: picname4, networkIp: back_networkIp
-         });//back desk
+        const randomUuid4 = uuidv4();
+        const picname4 = PNGKitchenPlace(randomUuid4, JSON.stringify(req.body.data), req.body.selectedTable, currentDate, BilanguageMode)
+        printQueue.push({
+            vendorId: back_vendorID, productId: back_productId, fileName: picname4, networkIp: back_networkIp
+        });//back desk
     }
     res.send({ success: true, message: "Data received successfully" });
 });
@@ -262,13 +266,13 @@ app.post('/PrintQRcode', (req, res) => {
                     background: { r: 255, g: 255, b: 255, alpha: 1 }
                 }
             })
-            .composite([{
-                input: Buffer.from(`<svg width="${options.width}" height="${options.textHeight}">
+                .composite([{
+                    input: Buffer.from(`<svg width="${options.width}" height="${options.textHeight}">
                     <text x="50%" y="50%" font-size="40" text-anchor="middle" fill="black">${suffix}</text>
                 </svg>`),
-                top: 0,
-                left: 0
-            }]);
+                    top: 0,
+                    left: 0
+                }]);
 
             const combinedQrImage = await qrImage
                 .extend({
@@ -291,12 +295,12 @@ app.post('/PrintQRcode', (req, res) => {
                     background: { r: 255, g: 255, b: 255, alpha: 1 }
                 }
             })
-            .composite([
-                { input: await sampleImage.png().toBuffer(), top: 0, left: 0 },
-                { input: combinedQrImage, top: options.sampleHeight, left: 0 }
-            ])
-            .png()
-            .toBuffer();
+                .composite([
+                    { input: await sampleImage.png().toBuffer(), top: 0, left: 0 },
+                    { input: combinedQrImage, top: options.sampleHeight, left: 0 }
+                ])
+                .png()
+                .toBuffer();
 
             await sharp(finalImage).toFile(outputFilePath);
 

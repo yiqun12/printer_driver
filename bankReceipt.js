@@ -28,7 +28,6 @@ function bankReceipt(randomUuid, receipt_JSON, selectedTable, restaurant_name_CH
     // let total = 0;
     let lines = 18;
     const lineHeight = 15;
-    const taxRate = 0.0825;
 
     const horrizontal_max_right = 255;
 

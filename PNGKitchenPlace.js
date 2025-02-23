@@ -97,7 +97,6 @@ function PNGKitchenPlace(randomUuid, receipt_JSON, selectedTable, currentDate, B
     let total = 0;
     let lines = 0;
     const lineHeight = 40;
-    const taxRate = 0.0825;
 
     // adding holder for table number
     const tableNumber = selectedTable
