@@ -29,6 +29,8 @@ const printerEmitter = new PrinterEmitter();
 function printer_usb(hex1, hex2, fileName, queue, networkIp) {
 
   const sec = fileName.substring(36, fileName.length - 4);
+  console.log("time")
+  console.log(parseInt(sec) + 1000)
   let device
   //const device  = new escpos.Network(networkIp);
   //const device = new escpos.USB(0x0FE6, 0x811E);
@@ -60,7 +62,7 @@ function printer_usb(hex1, hex2, fileName, queue, networkIp) {
       queue.shift(); // **移除当前任务**
       printerEmitter.emit('deleted', fileName, queue);
       if (device) device.close();
-    }, 2000); // **2秒超时**
+    }, parseInt(sec) + 1000); // **2秒超时**
 
     //printer start
     return new Promise((resolve, reject) => {
@@ -81,7 +83,7 @@ function printer_usb(hex1, hex2, fileName, queue, networkIp) {
             .image(image, 's8')
             .then(() => {
               console.log("🖨️ Printing completed");
-              //printer.beep(3, 2);
+              printer.beep(3, 2);
               printer.cut('PARTIAL').close(() => resolve());
               setTimeout(function () {
                 console.log("🗑️ Deleting file:", fileName);

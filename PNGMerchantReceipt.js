@@ -12,6 +12,8 @@
 // limitations under the License.
 const fs = require('fs')
 const { createCanvas, loadImage } = require('canvas')
+const QRCode = require('qrcode'); // Import QR code library
+
 // const app = express();
 function toFixTwo(n) {
     return (Math.round(n * 100) / 100).toFixed(2)
@@ -54,7 +56,7 @@ function PNGMerchantReceipt(randomUuid, receipt_JSON, selectedTable, discount, s
     restaurant_phone, receiptCopyMode,
     storeId,
     TaxRate
-    ) {
+) {
 
     /**generate new png picture receipt */
     const width = 300
@@ -63,7 +65,7 @@ function PNGMerchantReceipt(randomUuid, receipt_JSON, selectedTable, discount, s
     // let total = 0;
     let lines = 0;
     const lineHeight = 15;
-    const taxRate = 0.08625;
+    const taxRate = TaxRate / 100;
 
     const horrizontal_max_right = 255;
 
@@ -216,7 +218,7 @@ function PNGMerchantReceipt(randomUuid, receipt_JSON, selectedTable, discount, s
     })
     console.log(lines * lineHeight)
     // lines += 1;
-    const canvas = createCanvas(width, lines * lineHeight+20)
+    const canvas = createCanvas(width, lines * lineHeight + 20)
     const context = canvas.getContext('2d')
 
     context.fillStyle = '#fff'
@@ -385,7 +387,7 @@ function PNGMerchantReceipt(randomUuid, receipt_JSON, selectedTable, discount, s
     context.textAlign = 'left'
     y += lineHeight;
 
-    context.fillText(`Tax:`, 0, y)
+    context.fillText(`Tax` + "(" + TaxRate + "%):", 0, y)
     context.textAlign = 'end'
     context.fillText(`$${toFixTwo(subtotal * taxRate)}`, horrizontal_max_right, y)
     context.textAlign = 'left'
@@ -451,8 +453,10 @@ function PNGMerchantReceipt(randomUuid, receipt_JSON, selectedTable, discount, s
 
     context.font = "bold 10pt Sans";
     context.fillText(storeId, horrizontal_max_right / 2, y)
-    y += lineHeight * 1.5
-    context.fillText(TaxRate, horrizontal_max_right / 2, y)
+
+
+
+
     y += lineHeight * 1.5
     context.fillText("SIGNATURE", horrizontal_max_right / 2, y)
     context.textAlign = 'left'
