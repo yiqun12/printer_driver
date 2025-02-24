@@ -452,12 +452,12 @@ function PNGMerchantReceipt(randomUuid, receipt_JSON, selectedTable, discount, s
     y += lineHeight
 
     context.font = "bold 10pt Sans";
-    context.fillText(storeId, horrizontal_max_right / 2, y)
+    // context.fillText(storeId, horrizontal_max_right / 2, y)
 
 
 
 
-    y += lineHeight * 1.5
+    // y += lineHeight * 1.5
     context.fillText("SIGNATURE", horrizontal_max_right / 2, y)
     context.textAlign = 'left'
     y += lineHeight * 1.5
