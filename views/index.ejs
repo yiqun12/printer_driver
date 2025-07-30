@@ -25,14 +25,182 @@ limitations under the License. -->
 
 <body>
     <div class="ml-5" id="google_translate_element" style=" top: 10px; right: 10px;"></div>
-    Hello
+    
+    <div class="container-fluid">
+        <div class="row">
+                         <div class="col-md-6">
+                 <h4>Printer Driver Console</h4>
+                 <p>Hello - 7Dollar Printer Driver</p>
+             </div>
+             <div class="col-md-6">
+                 <h4>Real-time Command Monitoring</h4>
+                <div id="cmd-console-container">
+                    <!-- Console Output Area -->
+                    <div id="cmd-output" 
+                         style="height: 400px; 
+                                background: #1e1e1e; 
+                                color: #fff; 
+                                font-family: 'Courier New', monospace; 
+                                font-size: 12px; 
+                                padding: 10px; 
+                                overflow-y: auto; 
+                                border: 1px solid #333;
+                                border-radius: 4px;">
+                        <div class="log-entry system">
+                            <span class="timestamp">[Waiting for connection...]</span>
+                            <span class="message">Connecting to server...</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Connection Status Indicator -->
+                    <div class="mt-2">
+                        <span id="connection-status" class="badge badge-warning">Connecting...</span>
+                        <small class="text-muted ml-2">Socket.IO real-time connection status</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
     <script type="text/javascript"
         src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    
+    <!-- Socket.IO 客户端库 -->
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- 实时控制台相关样式 -->
+    <style>
+        .log-entry {
+            margin-bottom: 2px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .log-entry.command { color: #ffff00; }
+        .log-entry.stdout { color: #00ff00; }
+        .log-entry.stderr { color: #ff6b6b; }
+        .log-entry.error { color: #ff4757; }
+        .log-entry.system { color: #70a1ff; }
+        .timestamp { 
+            color: #888; 
+            font-size: 10px;
+            margin-right: 8px;
+        }
+        #cmd-output {
+            font-family: 'Cascadia Code', 'Fira Code', 'Courier New', monospace !important;
+        }
+        #cmd-input:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+    </style>
 
     <script>
+        // Socket.IO 实时控制台功能
+        const socket = io();
+        let isConnected = false;
+        
+        // DOM 元素引用
+        const cmdOutput = document.getElementById('cmd-output');
+        const cmdInput = document.getElementById('cmd-input');
+        const executeBtn = document.getElementById('execute-cmd');
+        const clearBtn = document.getElementById('clear-logs');
+        const connectionStatus = document.getElementById('connection-status');
+        
+        // Connection status management
+        socket.on('connect', () => {
+            isConnected = true;
+            connectionStatus.textContent = 'Connected';
+            connectionStatus.className = 'badge badge-success';
+            appendLog('system', 'Connected to server', new Date().toLocaleString());
+        });
+        
+        socket.on('disconnect', () => {
+            isConnected = false;
+            connectionStatus.textContent = 'Disconnected';
+            connectionStatus.className = 'badge badge-danger';
+            appendLog('error', 'Disconnected from server', new Date().toLocaleString());
+        });
+        
+        socket.on('connect_error', () => {
+            connectionStatus.textContent = 'Connection Error';
+            connectionStatus.className = 'badge badge-danger';
+        });
+        
+        // Receive command output
+        socket.on('cmd-output', (data) => {
+            appendLog(data.type, data.message, data.timestamp);
+        });
+        
+        // Clear logs
+        socket.on('logs-cleared', () => {
+            cmdOutput.innerHTML = '';
+            appendLog('system', 'Logs cleared', new Date().toLocaleString());
+        });
+        
+        // Add log entry
+        function appendLog(type, message, timestamp) {
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            
+            const timestampSpan = document.createElement('span');
+            timestampSpan.className = 'timestamp';
+            timestampSpan.textContent = `[${timestamp}]`;
+            
+            const messageSpan = document.createElement('span');
+            messageSpan.className = 'message';
+            messageSpan.textContent = message;
+            
+            logEntry.appendChild(timestampSpan);
+            logEntry.appendChild(messageSpan);
+            cmdOutput.appendChild(logEntry);
+            
+            // Auto scroll to bottom
+            cmdOutput.scrollTop = cmdOutput.scrollHeight;
+        }
+        
+        // Execute command
+        function executeCommand() {
+            const command = cmdInput.value.trim();
+            if (!command) return;
+            
+            if (!isConnected) {
+                appendLog('error', 'Not connected to server', new Date().toLocaleString());
+                return;
+            }
+            
+            // Send command to server
+            socket.emit('execute-cmd', { command: command });
+            
+            // Clear input box
+            cmdInput.value = '';
+        }
+        
+        // Clear logs
+        function clearLogs() {
+            socket.emit('clear-logs');
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            // Execute button click
+            executeBtn.addEventListener('click', executeCommand);
+            
+            // Clear button click
+            clearBtn.addEventListener('click', clearLogs);
+            
+            // Enter key to execute command
+            cmdInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    executeCommand();
+                }
+            });
+            
+            // Initialize Google Translate
+            if (typeof googleTranslateElementInit === 'function') {
+                googleTranslateElementInit();
+            }
+        });
 
         window.addEventListener('message', (event) => {
             // Make sure to check the origin of the message for security purposes
