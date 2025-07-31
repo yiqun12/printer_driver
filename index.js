@@ -18,7 +18,9 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const opn = require('opn');
 const open = require('open');
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
+const http = require('http');
+const socketIo = require('socket.io');
 const { printPngFile } = require('node-brother-label-printer');
 //const QRCode = require('qrcode');
 //const path = require('path');
@@ -393,8 +395,133 @@ app.post('/OpenCashDraw', (req, res) => {
 });
 
 
-app.listen(3001, () => {
+// 创建HTTP服务器并集成Socket.IO
+const server = http.createServer(app);
+const io = socketIo(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
+
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+    console.log('Frontend client connected:', socket.id);
+    
+    // Send welcome message
+    socket.emit('cmd-output', {
+        type: 'system',
+        message: 'Command line monitoring started',
+        timestamp: new Date().toLocaleString()
+    });
+    
+    // Handle commands from client
+    socket.on('execute-cmd', (data) => {
+        executeCommand(data.command, socket);
+    });
+    
+    // Clear logs
+    socket.on('clear-logs', () => {
+        socket.emit('logs-cleared');
+    });
+    
+    socket.on('disconnect', () => {
+        console.log('Frontend client disconnected:', socket.id);
+    });
+});
+
+// Command execution function
+function executeCommand(command, socket) {
+    const timestamp = new Date().toLocaleString();
+    
+    // Send command start message
+    socket.emit('cmd-output', {
+        type: 'command',
+        message: `$ ${command}`,
+        timestamp: timestamp
+    });
+    
+    // Execute command
+    const child = spawn(command, [], { 
+        shell: true,
+        stdio: ['pipe', 'pipe', 'pipe']
+    });
+    
+    // Handle standard output
+    child.stdout.on('data', (data) => {
+        socket.emit('cmd-output', {
+            type: 'stdout',
+            message: data.toString(),
+            timestamp: new Date().toLocaleString()
+        });
+    });
+    
+    // Handle error output
+    child.stderr.on('data', (data) => {
+        socket.emit('cmd-output', {
+            type: 'stderr',
+            message: data.toString(),
+            timestamp: new Date().toLocaleString()
+        });
+    });
+    
+    // Handle command completion
+    child.on('close', (code) => {
+        socket.emit('cmd-output', {
+            type: 'system',
+            message: `Command completed with exit code: ${code}`,
+            timestamp: new Date().toLocaleString()
+        });
+    });
+    
+    // Handle errors
+    child.on('error', (error) => {
+        socket.emit('cmd-output', {
+            type: 'error',
+            message: `Execution error: ${error.message}`,
+            timestamp: new Date().toLocaleString()
+        });
+    });
+}
+
+// Global log capture function
+function broadcastLog(type, message) {
+    io.emit('cmd-output', {
+        type: type,
+        message: message,
+        timestamp: new Date().toLocaleString()
+    });
+}
+
+// Override console methods to broadcast to frontend
+const originalLog = console.log;
+const originalError = console.error;
+const originalWarn = console.warn;
+const originalInfo = console.info;
+
+console.log = function(...args) {
+    originalLog.apply(console, args);
+    broadcastLog('system', args.join(' '));
+};
+
+console.error = function(...args) {
+    originalError.apply(console, args);
+    broadcastLog('error', args.join(' '));
+};
+
+console.warn = function(...args) {
+    originalWarn.apply(console, args);
+    broadcastLog('stderr', args.join(' '));
+};
+
+console.info = function(...args) {
+    originalInfo.apply(console, args);
+    broadcastLog('system', args.join(' '));
+};
+
+server.listen(3001, () => {
     console.log('Server is running on http://localhost:3001');
+    console.log('Socket.IO server started');
     if (kiosk) {
         open('https://7dollar.delivery/account', {
             app: {
